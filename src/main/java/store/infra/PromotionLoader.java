@@ -15,9 +15,13 @@ public class PromotionLoader {
     private static final String DELIMITER = ",";
     private static final int EXPECTED_FIELD_COUNT = 5;
 
-    public List<Promotion> loadPromotions() throws IOException {
-        List<String> lines = readFileLines();
-        return parsePromotions(lines);
+    public List<Promotion> loadPromotions() {
+        try {
+            List<String> lines = readFileLines();
+            return parsePromotions(lines);
+        } catch (IOException e) {
+            throw new IllegalArgumentException(InfraErrorMessage.FILE_READ_FAILED.getMessage());
+        }
     }
 
     private List<String> readFileLines() throws IOException {

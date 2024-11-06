@@ -13,6 +13,10 @@ public class PromotionFactory {
     }
 
     public Promotion getPromotion(String promotionName) {
+        if ("null".equals(promotionName)) {
+            return null;
+        }
+
         if (!promotions.containsKey(promotionName)) {
             throw new IllegalArgumentException(InfraErrorMessage.INVALID_PROMOTION_NAME.getMessage());
         }
