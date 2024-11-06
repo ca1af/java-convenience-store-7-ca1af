@@ -1,4 +1,4 @@
-package store.infra;
+package store.infra.loader;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import store.infra.InfraErrorMessage;
 
 class FileLoaderTest {
     private static final String VALID_FILE_PATH = "src/test/resources/test_data.md";

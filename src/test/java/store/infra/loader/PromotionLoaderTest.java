@@ -1,6 +1,5 @@
-package store.infra;
+package store.infra.loader;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import org.assertj.core.api.SoftAssertions;
@@ -19,7 +18,7 @@ class PromotionLoaderTest {
             "MD추천상품,1,1,2024-01-01,2024-12-31",
             "반짝할인,1,1,2024-11-01,2024-11-30"
     })
-    void verifyPromotionDetails(String name, int buyQuantity, int getQuantity, String startDate, String endDate) throws IOException {
+    void verifyPromotionDetails(String name, int buyQuantity, int getQuantity, String startDate, String endDate) {
         List<Promotion> promotions = promotionLoader.loadPromotions();
 
         Promotion promotion = findPromotionByName(promotions, name);

@@ -1,8 +1,9 @@
-package store.infra;
+package store.infra.loader;
 
 import java.util.List;
 import store.domain.Product;
 import store.domain.Promotion;
+import store.infra.PromotionFactory;
 
 public class ProductLoader extends FileLoader<Product> {
     private static final int EXPECTED_FIELD_COUNT = 4;

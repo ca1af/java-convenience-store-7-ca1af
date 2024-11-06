@@ -1,6 +1,5 @@
-package store.infra;
+package store.infra.loader;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import org.assertj.core.api.SoftAssertions;
@@ -10,6 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import store.domain.Product;
 import store.domain.Promotion;
+import store.infra.PromotionFactory;
 
 class ProductLoaderTest {
     private ProductLoader productLoader;
@@ -29,7 +29,7 @@ class ProductLoaderTest {
             "오렌지주스,1800,9,MD추천상품",
             "감자칩,1500,5,반짝할인"
     })
-    void verifyProductDetailsWithPromotions(String name, int price, int quantity, String promotionName) throws IOException {
+    void verifyProductDetailsWithPromotions(String name, int price, int quantity, String promotionName) {
         List<Product> products = productLoader.loadProducts();
 
         Product product = findProductByNameAndPromotion(products, name, promotionName);
@@ -49,7 +49,7 @@ class ProductLoaderTest {
             "비타민워터,1500,6,null",
             "정식도시락,6400,8,null"
     })
-    void verifyProductDetailsWithoutPromotions(String name, int price, int quantity, String promotionName) throws IOException {
+    void verifyProductDetailsWithoutPromotions(String name, int price, int quantity, String promotionName) {
         List<Product> products = productLoader.loadProducts();
 
         Product product = findProductByNameAndPromotion(products, name, promotionName);

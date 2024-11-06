@@ -1,4 +1,4 @@
-package store.infra;
+package store.infra.loader;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import store.infra.InfraErrorMessage;
 
 public abstract class FileLoader<T> {
     protected static final String DELIMITER = ",";
