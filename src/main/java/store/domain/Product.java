@@ -10,4 +10,8 @@ public record Product(String name, int price, int quantity, Promotion promotion)
     public int getTotalPrice(){
         return price * quantity;
     }
+
+    public boolean hasRemains(int quantity){
+        return promotion.hasRemains(quantity);
+    }
 }
