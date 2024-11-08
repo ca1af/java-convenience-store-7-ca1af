@@ -3,10 +3,10 @@ package store.infra;
 import java.util.List;
 import store.domain.Product;
 
-public class Products {
+public class ProductStorage {
     private final List<Product> stocks;
 
-    public Products(List<Product> stocks) {
+    public ProductStorage(List<Product> stocks) {
         this.stocks = stocks; // 불변이어서는 안된다.
     }
 

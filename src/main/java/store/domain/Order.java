@@ -1,13 +1,12 @@
 package store.domain;
 
 public class Order {
-    private final Product product;
+    private final OrderProducts orderProducts;
     private final int quantity;
 
-    // 주문 수량이 온전히 제공되었는가?
-    public Order(Product product, int quantity) {
+    public Order(OrderProducts orderProducts, int quantity) {
         validate(quantity);
-        this.product = product;
+        this.orderProducts = orderProducts;
         this.quantity = quantity;
     }
 
@@ -18,19 +17,15 @@ public class Order {
     }
 
     public boolean hasRemain(){
-        if (!product.promotionExists()){
-            return false;
-        }
-
-        return product.hasRemains(quantity);
-    }
-
-    public boolean available() {
-        return product.getQuantity() >= quantity;
+        return orderProducts.hasRemain(quantity);
     }
 
     public String getProductName(){
-        return product.getName();
+        return orderProducts.getProductName();
+    }
+
+    public boolean available() {
+        return orderProducts.getMaxCount() >= quantity;
     }
 
     public int getQuantity() {

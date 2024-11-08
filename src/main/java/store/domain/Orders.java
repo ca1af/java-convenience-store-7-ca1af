@@ -2,7 +2,7 @@ package store.domain;
 
 import java.util.List;
 import java.util.Optional;
-import store.infra.Products;
+import store.infra.ProductStorage;
 
 public class Orders {
     private final List<Order> requestedOrders;
@@ -22,9 +22,9 @@ public class Orders {
         }
     }
 
-    public void validate(Products products) {
+    public void validate(ProductStorage productStorage) {
         Optional<Order> insufficientOrder = requestedOrders.stream()
-                .filter(each -> !products.hasQuantity(each.getProductName(), each.getQuantity())).findAny();
+                .filter(each -> !productStorage.hasQuantity(each.getProductName(), each.getQuantity())).findAny();
 
         if (insufficientOrder.isPresent()) {
             throw new IllegalArgumentException(DomainErrorMessage.QUANTITY_EXCEEDED.getMessage());

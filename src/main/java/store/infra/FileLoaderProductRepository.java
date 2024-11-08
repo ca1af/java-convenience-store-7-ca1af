@@ -1,37 +1,35 @@
 package store.infra;
 
-import java.util.List;
-import store.domain.Product;
 import store.infra.loader.ProductLoader;
 import store.infra.loader.PromotionLoader;
 
 public class FileLoaderProductRepository {
-    private final Products stocks;
+    private final ProductStorage productStorage;
 
     public FileLoaderProductRepository() {
         PromotionLoader promotionLoader = new PromotionLoader();
         PromotionFactory promotionFactory = new PromotionFactory(promotionLoader.loadPromotions());
         ProductLoader productLoader = new ProductLoader(promotionFactory);
-        this.stocks = new Products(productLoader.loadProducts());
+        this.productStorage = new ProductStorage(productLoader.loadProducts());
     }
 
-    public List<Product> findAllByName(String productName) {
-        if (!stocks.hasProduct(productName)) {
+    public ProductStorage findAllByName(String productName) {
+        if (!productStorage.hasProduct(productName)) {
             throw new IllegalArgumentException(InfraErrorMessage.INVALID_PRODUCT_NAME.getMessage());
         }
 
-        return stocks.findAllByName(productName);
+        return new ProductStorage(productStorage.findAllByName(productName));
     }
 
-    public Products findAll(){
-        return stocks;
+    public ProductStorage findAll(){
+        return productStorage;
     }
 
     public boolean hasEnoughQuantity(String productName, int quantity) {
-        return stocks.hasQuantity(productName, quantity);
+        return productStorage.hasQuantity(productName, quantity);
     }
 
     public boolean exists(String productName) {
-        return stocks.exists(productName);
+        return productStorage.exists(productName);
     }
 }
