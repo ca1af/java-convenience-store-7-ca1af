@@ -23,7 +23,7 @@ public final class Product {
         if (!promotionExists()){
             return false;
         }
-        if (quantity > this.quantity) {
+        if (quantity >= this.quantity) { // 같다면 무료 증정이 불가하다 (1+1 으로 5개 주문, 재고 5개면 5개 나가야한다.)
             return false;
         }
         return promotion.hasUnclaimedFreeItem(quantity);

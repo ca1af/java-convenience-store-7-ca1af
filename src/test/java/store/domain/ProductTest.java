@@ -64,7 +64,7 @@ class ProductTest {
     }
 
     @Test
-    @DisplayName("hasRemains 메서드가 프로모션 조건에 맞는 수량 여부를 반환한다")
+    @DisplayName("hasUnclaimedFreeItem 메서드가 프로모션 조건에 맞는 수량 여부를 반환한다")
     void testHasUnclaimedFreeItem() {
         // given
         Promotion promotion = new Promotion("1+1", 1, 1, LocalDate.now().minusDays(1), LocalDate.now().plusDays(10));
@@ -72,6 +72,6 @@ class ProductTest {
 
         // then
         Assertions.assertThat(product.hasUnclaimedFreeItem(3)).isTrue();
-        Assertions.assertThat(product.hasUnclaimedFreeItem(4)).isFalse();
+        Assertions.assertThat(product.hasUnclaimedFreeItem(10)).isFalse();
     }
 }
