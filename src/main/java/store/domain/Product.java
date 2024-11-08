@@ -19,11 +19,14 @@ public final class Product {
         return !Objects.isNull(promotion) && quantity > 0;
     }
 
-    public boolean hasRemains(int quantity) {
+    public boolean hasUnclaimedFreeItem(int quantity) {
         if (!promotionExists()){
             return false;
         }
-        return promotion.hasFreeRemains(quantity);
+        if (quantity > this.quantity) {
+            return false;
+        }
+        return promotion.hasUnclaimedFreeItem(quantity);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package store.domain;
 
 import java.util.List;
+import java.util.Optional;
 
 public class OrderProducts {
     private final List<Product> stocks;
@@ -34,12 +35,17 @@ public class OrderProducts {
                 .sum();
     }
 
-    public boolean hasRemain(int quantity){
-        return stocks.stream().anyMatch(each -> each.hasRemains(quantity));
+    public boolean hasUnclaimedFreeItem(int quantity){
+        return stocks.stream().anyMatch(each -> each.hasUnclaimedFreeItem(quantity));
     }
 
-    public String getProductName(){
-        return stocks.getFirst().getName();
+    public int getNormalProductPrice(int quantity){
+        Optional<Product> normalProduct = stocks.stream()
+                .filter(each -> !each.promotionExists())
+                .findFirst();
+
+        Integer price = normalProduct.map(Product::getPrice).orElse(0);
+        return price * quantity;
     }
 
     public int getPromotionStock() {

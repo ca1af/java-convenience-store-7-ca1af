@@ -2,7 +2,6 @@ package store.domain;
 
 import java.util.List;
 import java.util.Optional;
-import store.infra.ProductStorage;
 
 public class Orders {
     private final List<Order> requestedOrders;
@@ -12,22 +11,28 @@ public class Orders {
         this.requestedOrders = List.copyOf(requestedOrders);
     }
 
-    public List<Order> getFreeRemaining() {
-        return requestedOrders.stream().filter(Order::hasRemain).toList();
+    public List<Order> getUnclaimedFreeItemOrder() {
+        return requestedOrders.stream().filter(Order::hasUnclaimedFreeItem).toList();
     }
 
     private void validateSelf(List<Order> orders) {
         if (orders.isEmpty()) {
             throw new IllegalArgumentException(DomainErrorMessage.INVALID_INPUT.getMessage());
         }
-    }
 
-    public void validate(ProductStorage productStorage) {
-        Optional<Order> insufficientOrder = requestedOrders.stream()
-                .filter(each -> !productStorage.hasQuantity(each.getProductName(), each.getQuantity())).findAny();
-
-        if (insufficientOrder.isPresent()) {
+        Optional<Order> unavailableOrder = orders.stream().filter(each -> !each.available()).findAny();
+        if (unavailableOrder.isPresent()) {
             throw new IllegalArgumentException(DomainErrorMessage.QUANTITY_EXCEEDED.getMessage());
         }
+    }
+
+    public int getNormalProductPrice(){
+        return requestedOrders.stream().mapToInt(Order::getNormalProductPrice).sum();
+    }
+
+    public List<Order> getFallBackToNormalOrders(){
+        return requestedOrders.stream()
+                .filter(each -> each.countFallbackToNormal() > 0)
+                .toList();
     }
 }

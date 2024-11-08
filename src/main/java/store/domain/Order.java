@@ -16,19 +16,29 @@ public class Order {
         }
     }
 
-    public boolean hasRemain(){
-        return orderProducts.hasRemain(quantity);
+    // 프로모션 상품이 있지만 일반 상품을 써야하는 경우, 써야 하는 일반 상품의 갯수를 계산
+    public int countFallbackToNormal() {
+        int promotionStock = orderProducts.getPromotionStock();
+        if (promotionStock >= quantity) {
+            return 0;
+        }
+        return quantity - promotionStock;
     }
 
-    public String getProductName(){
-        return orderProducts.getProductName();
+    public int getNormalProductPrice(){
+        return orderProducts.getNormalProductPrice(getNormalProductQuantity());
+    }
+
+    private int getNormalProductQuantity() {
+        int promotionStockUsed = Math.min(quantity, orderProducts.getPromotionStock());
+        return quantity - promotionStockUsed;
+    }
+
+    public boolean hasUnclaimedFreeItem(){
+        return orderProducts.hasUnclaimedFreeItem(quantity);
     }
 
     public boolean available() {
         return orderProducts.getMaxCount() >= quantity;
-    }
-
-    public int getQuantity() {
-        return quantity;
     }
 }

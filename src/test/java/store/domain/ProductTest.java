@@ -65,13 +65,13 @@ class ProductTest {
 
     @Test
     @DisplayName("hasRemains 메서드가 프로모션 조건에 맞는 수량 여부를 반환한다")
-    void testHasRemains() {
+    void testHasUnclaimedFreeItem() {
         // given
         Promotion promotion = new Promotion("1+1", 1, 1, LocalDate.now().minusDays(1), LocalDate.now().plusDays(10));
         Product product = new Product("콜라", 1000, 10, promotion);
 
         // then
-        Assertions.assertThat(product.hasRemains(3)).isTrue();
-        Assertions.assertThat(product.hasRemains(4)).isFalse();
+        Assertions.assertThat(product.hasUnclaimedFreeItem(3)).isTrue();
+        Assertions.assertThat(product.hasUnclaimedFreeItem(4)).isFalse();
     }
 }

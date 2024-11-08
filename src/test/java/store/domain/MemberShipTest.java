@@ -14,11 +14,12 @@ import org.junit.jupiter.params.provider.CsvSource;
 class MemberShipTest {
 
     private MemberShip memberShip;
-    private final Promotion promotion = new Promotion("Sample Promotion", 2, 1, LocalDate.now(), LocalDate.now().plusDays(10));
+    private Promotion promotion;
 
     @BeforeEach
     void setUp() {
         memberShip = new MemberShip();
+        promotion = new Promotion("Sample Promotion", 2, 1, LocalDate.now(), LocalDate.now().plusDays(10));
     }
 
     @DisplayName("할인을 적용한다.")
@@ -30,8 +31,9 @@ class MemberShipTest {
     })
     void apply30PercentDiscount(int price, int expectedDiscount) {
         Product product = new Product("NonPromoItem", price, 1, null);
+        Orders orders = new Orders(List.of(new Order(new OrderProducts(List.of(product)), 1)));
 
-        int discount = memberShip.applyDiscount(List.of(product));
+        int discount = memberShip.applyDiscount(orders);
 
         Assertions.assertThat(discount).isEqualTo(expectedDiscount);
     }
@@ -40,8 +42,9 @@ class MemberShipTest {
     @Test
     void applyDiscount_shouldLimitDiscountToEligibleAmount() {
         Product expensiveProduct = new Product("ExpensiveItem", 26667, 1, null); // 경계값
+        Orders orders = new Orders(List.of(new Order(new OrderProducts(List.of(expensiveProduct)), 1)));
 
-        int discount = memberShip.applyDiscount(List.of(expensiveProduct));
+        int discount = memberShip.applyDiscount(orders);
 
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(discount).isEqualTo(8000); // 최대 할인 한도
@@ -53,13 +56,15 @@ class MemberShipTest {
     void applyDiscount_shouldNotExceedEligibleAmountAfterMultipleDiscounts() {
         Product product1 = new Product("Item1", 10000, 1, null);
         Product expensiveProduct = new Product("ExpensiveItem", 26667, 1, null); // 경계값
+        Orders orders1 = new Orders(List.of(new Order(new OrderProducts(List.of(product1)), 1)));
+        Orders orders2 = new Orders(List.of(new Order(new OrderProducts(List.of(expensiveProduct)), 1)));
 
-        int discount1 = memberShip.applyDiscount(List.of(product1));
-        int discount2 = memberShip.applyDiscount(List.of(expensiveProduct));
+        int discount1 = memberShip.applyDiscount(orders1);
+        int discount2 = memberShip.applyDiscount(orders2);
 
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(discount1).isEqualTo(3000);
-            softly.assertThat(discount2).isEqualTo(5000);
+            softly.assertThat(discount2).isEqualTo(5000); // 남은 한도
         });
     }
 
@@ -68,8 +73,12 @@ class MemberShipTest {
     void applyDiscount_shouldExcludePromotionalItems() {
         Product promotionalProduct = new Product("PromoItem", 10000, 1, promotion); // 프로모션 적용 상품
         Product nonPromotionalProduct = new Product("NonPromoItem", 10000, 1, null); // 프로모션 없음
+        Orders orders = new Orders(List.of(
+                new Order(new OrderProducts(List.of(promotionalProduct)), 1),
+                new Order(new OrderProducts(List.of(nonPromotionalProduct)), 1)
+        ));
 
-        int discount = memberShip.applyDiscount(List.of(promotionalProduct, nonPromotionalProduct));
+        int discount = memberShip.applyDiscount(orders);
 
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(discount).isEqualTo(3000); // 프로모션 없는 상품만 할인
