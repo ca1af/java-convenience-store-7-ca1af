@@ -1,7 +1,6 @@
 package store.infra.loader;
 
 import java.util.List;
-import java.util.Objects;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,62 +21,56 @@ class ProductLoaderTest {
         productLoader = new ProductLoader(promotionFactory);
     }
 
-    @DisplayName("상품을 파일에서 불러와 올바르게 초기화할 수 있다.")
     @ParameterizedTest
     @CsvSource({
             "콜라,1000,10,탄산2+1",
             "오렌지주스,1800,9,MD추천상품",
             "감자칩,1500,5,반짝할인"
     })
-    void verifyProductDetailsWithPromotions(String name, int price, int quantity, String promotionName) {
+    @DisplayName("파일에서 상품을 올바르게 로드하고 프로모션을 적용할 수 있다")
+    void shouldLoadProductsWithPromotion(String name, int price, int quantity, String promotionName) {
+        // given
         List<Product> products = productLoader.loadProducts();
 
-        Product product = findProductByNameAndPromotion(products, name, promotionName);
+        // when
+        Product product = findProductByName(products, name);
 
+        // then
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(product.name()).isEqualTo(name);
-            softly.assertThat(product.price()).isEqualTo(price);
-            softly.assertThat(product.quantity()).isEqualTo(quantity);
-            softly.assertThat(product.promotion().name()).isEqualTo(promotionName);
+            softly.assertThat(product.getName()).isEqualTo(name);
+            softly.assertThat(product.getPrice()).isEqualTo(price);
+            softly.assertThat(product.getQuantity()).isEqualTo(quantity);
+            softly.assertThat(product.promotionExists()).isTrue();
         });
     }
 
-    @DisplayName("상품을 파일에서 불러와 프로모션 없이 초기화할 수 있다.")
     @ParameterizedTest
     @CsvSource({
             "콜라,1000,10,null",
             "비타민워터,1500,6,null",
             "정식도시락,6400,8,null"
     })
-    void verifyProductDetailsWithoutPromotions(String name, int price, int quantity, String promotionName) {
+    @DisplayName("파일에서 프로모션이 없는 상품을 올바르게 로드할 수 있다")
+    void shouldLoadProductsWithoutPromotion(String name, int price, int quantity, String promotionName) {
+        // given
         List<Product> products = productLoader.loadProducts();
 
-        Product product = findProductByNameAndPromotion(products, name, promotionName);
+        // when
+        Product product = findProductByName(products, name);
 
+        // then
         SoftAssertions.assertSoftly(softly -> {
-            softly.assertThat(product.name()).isEqualTo(name);
-            softly.assertThat(product.price()).isEqualTo(price);
-            softly.assertThat(product.quantity()).isEqualTo(quantity);
-            softly.assertThat(product.promotion()).isNull();
+            softly.assertThat(product.getName()).isEqualTo(name);
+            softly.assertThat(product.getPrice()).isEqualTo(price);
+            softly.assertThat(product.getQuantity()).isEqualTo(quantity);
+            softly.assertThat(product.promotionExists()).isFalse();
         });
     }
 
-    private Product findProductByNameAndPromotion(List<Product> products, String name, String promotionName) {
+    private Product findProductByName(List<Product> products, String name) {
         return products.stream()
-                .filter(p -> exists(name, promotionName, p))
+                .filter(product -> product.getName().equals(name))
                 .findFirst()
                 .orElseThrow();
-    }
-
-    private static boolean exists(String name, String promotionName, Product p) {
-        if (!p.name().equals(name)){
-            return false;
-        }
-
-        if (Objects.isNull(p.promotion())){
-            return Objects.equals(promotionName, "null");
-        }
-
-        return p.promotion().name().equals(promotionName);
     }
 }
