@@ -16,19 +16,38 @@ public final class Product {
     }
 
     public boolean promotionExists() {
-        return !Objects.isNull(promotion);
+        return !Objects.isNull(promotion) && quantity > 0;
     }
 
     public boolean hasRemains(int quantity) {
+        if (!promotionExists()){
+            return false;
+        }
         return promotion.hasFreeRemains(quantity);
     }
 
     @Override
     public String toString() {
+        if (quantity > 0){
+            return formatWithStock();
+        }
+
+        return formatOutOfStock();
+    }
+
+    private String formatWithStock() {
         StringBuilder sb = new StringBuilder();
         appendBasicInfo(sb);
         appendPromotionInfo(sb);
         return sb.toString();
+    }
+
+    private String formatOutOfStock() {
+        return "- "
+                + name
+                + " "
+                + String.format("%,d원", price)
+                + " 재고 없음";
     }
 
     private void appendBasicInfo(StringBuilder sb) {
@@ -47,10 +66,6 @@ public final class Product {
         }
     }
 
-    public int getTotalPrice() {
-        return price * quantity;
-    }
-
     public String getName() {
         return name;
     }
@@ -59,7 +74,7 @@ public final class Product {
         return quantity;
     }
 
-    public Promotion getPromotion() {
-        return promotion;
+    public int getPrice(){
+        return price;
     }
 }
