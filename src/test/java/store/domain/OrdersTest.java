@@ -33,7 +33,7 @@ class OrdersTest {
     @Test
     void getRemaining_ShouldReturnFreeRemainingOrders() {
         // given
-        Order order1 = new Order(colaProducts, 5);
+        Order order1 = new Order(colaProducts, 4);
         Order order2 = new Order(promotionProducts, 3);
 
         Orders orders = new Orders(List.of(order1, order2));

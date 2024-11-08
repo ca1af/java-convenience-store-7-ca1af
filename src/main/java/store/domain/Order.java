@@ -2,7 +2,7 @@ package store.domain;
 
 public class Order {
     private final OrderProducts orderProducts;
-    private final int quantity;
+    private int quantity;
 
     public Order(OrderProducts orderProducts, int quantity) {
         validate(quantity);
@@ -14,6 +14,14 @@ public class Order {
         if (quantity <= 0){
             throw new IllegalArgumentException(DomainErrorMessage.INVALID_QUANTITY.getMessage());
         }
+    }
+
+    public void addQuantity(){
+        this.quantity++;
+    }
+
+    public void decreaseQuantity(int decreaseAmount){
+        this.quantity -= decreaseAmount;
     }
 
     // 프로모션 상품이 있지만 일반 상품을 써야하는 경우, 써야 하는 일반 상품의 갯수를 계산
@@ -38,7 +46,20 @@ public class Order {
         return orderProducts.hasUnclaimedFreeItem(quantity);
     }
 
+    public boolean hasFallbackToNormal(){
+        int promotionStock = orderProducts.getPromotionStock();
+        return quantity > promotionStock;
+    }
+
     public boolean available() {
         return orderProducts.getMaxCount() >= quantity;
+    }
+
+    public String getProductName(){
+        return this.orderProducts.getProductName();
+    }
+
+    public void decreaseAmount(){
+        orderProducts.decrease(quantity);
     }
 }

@@ -8,11 +8,15 @@ public class Orders {
 
     public Orders(List<Order> requestedOrders) {
         validateSelf(requestedOrders);
-        this.requestedOrders = List.copyOf(requestedOrders);
+        this.requestedOrders = requestedOrders;
     }
 
     public List<Order> getUnclaimedFreeItemOrder() {
         return requestedOrders.stream().filter(Order::hasUnclaimedFreeItem).toList();
+    }
+
+    public boolean hasUnclaimedFreeItem() {
+        return requestedOrders.stream().anyMatch(Order::hasUnclaimedFreeItem);
     }
 
     private void validateSelf(List<Order> orders) {
@@ -34,5 +38,9 @@ public class Orders {
         return requestedOrders.stream()
                 .filter(each -> each.countFallbackToNormal() > 0)
                 .toList();
+    }
+
+    public void decreaseAmount(){
+        requestedOrders.forEach(Order::decreaseAmount);
     }
 }

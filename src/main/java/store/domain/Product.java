@@ -15,12 +15,23 @@ public final class Product {
         this.promotion = promotion;
     }
 
+    public int decrease(int purchaseQuantity) {
+        if (quantity >= purchaseQuantity) {
+            quantity -= purchaseQuantity;
+            return 0;
+        }
+
+        int remaining = purchaseQuantity - quantity;
+        quantity = 0;
+        return remaining;
+    }
+
     public boolean promotionExists() {
-        return !Objects.isNull(promotion) && quantity > 0;
+        return !Objects.isNull(promotion);
     }
 
     public boolean hasUnclaimedFreeItem(int quantity) {
-        if (!promotionExists()){
+        if (!promotionExists() || quantity <= 0){
             return false;
         }
         if (quantity >= this.quantity) { // 같다면 무료 증정이 불가하다 (1+1 으로 5개 주문, 재고 5개면 5개 나가야한다.)
