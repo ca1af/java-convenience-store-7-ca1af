@@ -16,10 +16,22 @@ public class FileLoaderProductRepository {
     }
 
     public List<Product> findAllByName(String productName) {
+        if (!stocks.hasProduct(productName)) {
+            throw new IllegalArgumentException(InfraErrorMessage.INVALID_PRODUCT_NAME.getMessage());
+        }
+
         return stocks.findAllByName(productName);
     }
 
-    public void deleteProducts(List<Product> purchasedProducts) {
-        stocks.delete(purchasedProducts);
+    public Products findAll(){
+        return stocks;
+    }
+
+    public boolean hasEnoughQuantity(String productName, int quantity) {
+        return stocks.hasQuantity(productName, quantity);
+    }
+
+    public boolean exists(String productName) {
+        return stocks.exists(productName);
     }
 }
