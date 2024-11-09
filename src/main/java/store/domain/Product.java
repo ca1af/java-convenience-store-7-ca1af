@@ -26,6 +26,13 @@ public final class Product {
         return remaining;
     }
 
+    public int getPromotedCount(int orderQuantity){
+        if (orderQuantity > quantity){
+            return quantity;
+        }
+        return promotion.promotionGetCount(orderQuantity);
+    }
+
     public boolean promotionExists() {
         return !Objects.isNull(promotion);
     }
