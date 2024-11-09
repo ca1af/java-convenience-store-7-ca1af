@@ -3,6 +3,9 @@ package store.domain;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 주문 품목 한 건 (ex : 콜라) 에 관련된 상품 집합 (ex : 일반 콜라 + 프로모션 콜라)
+ */
 public class OrderProducts {
     private final List<Product> stocks;
 
@@ -44,6 +47,11 @@ public class OrderProducts {
 
     public int getPromotionStock() {
         return stocks.stream().filter(Product::promotionExists).mapToInt(Product::getQuantity).sum();
+    }
+
+    public int getPromotedCount(int orderQuantity) {
+        Optional<Product> promotionProduct = stocks.stream().filter(Product::promotionExists).findFirst();
+        return promotionProduct.map(product -> product.getPromotedCount(orderQuantity)).orElse(0);
     }
 
     public String getProductName() {
