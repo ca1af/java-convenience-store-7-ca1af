@@ -19,6 +19,12 @@ public class Orders {
         return requestedOrders.stream().anyMatch(Order::hasUnclaimedFreeItem);
     }
 
+    public List<Order> getPromotedOrders(){
+        return requestedOrders.stream()
+                .filter(each -> each.getPromotedCount() > 0)
+                .toList();
+    }
+
     private void validateSelf(List<Order> orders) {
         if (orders.isEmpty()) {
             throw new IllegalArgumentException(DomainErrorMessage.INVALID_INPUT.getMessage());
@@ -41,6 +47,6 @@ public class Orders {
     }
 
     public void decreaseAmount(){
-        requestedOrders.forEach(Order::decreaseAmount);
+        requestedOrders.forEach(Order::decreaseStocks);
     }
 }

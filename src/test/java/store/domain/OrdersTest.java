@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test;
 
 class OrdersTest {
 
-    private OrderProducts colaProducts;
-    private OrderProducts sodaProducts;
-    private OrderProducts promotionProducts;
+    private List<Product> colaStocks;
+    private List<Product> sodaStocks;
+    private List<Product> promotionStocks;
 
     @BeforeEach
     void setUp() {
@@ -24,17 +24,17 @@ class OrdersTest {
         Product colaPromo = new Product("콜라", 1000, 10, promotion);
         Product promotionProduct = new Product("감자칩", 1500, 5, promotion);
 
-        colaProducts = new OrderProducts(List.of(cola, colaPromo));
-        sodaProducts = new OrderProducts(List.of(soda));
-        promotionProducts = new OrderProducts(List.of(promotionProduct));
+        colaStocks = List.of(cola, colaPromo);
+        sodaStocks = List.of(soda);
+        promotionStocks = List.of(promotionProduct);
     }
 
     @DisplayName("무료 증정품이 존재하는 주문만 반환한다")
     @Test
     void getRemaining_ShouldReturnFreeRemainingOrders() {
         // given
-        Order order1 = new Order(colaProducts, 4);
-        Order order2 = new Order(promotionProducts, 3);
+        Order order1 = new Order(colaStocks, 4);
+        Order order2 = new Order(promotionStocks, 3);
 
         Orders orders = new Orders(List.of(order1, order2));
 
@@ -49,8 +49,8 @@ class OrdersTest {
     @Test
     void validate_ShouldNotThrowWhenAllOrdersAreValid() {
         // given
-        Order order1 = new Order(colaProducts, 5);
-        Order order2 = new Order(sodaProducts, 4);
+        Order order1 = new Order(colaStocks, 5);
+        Order order2 = new Order(sodaStocks, 4);
 
         // when / then
         Assertions.assertThatCode(() -> new Orders(List.of(order1, order2))).doesNotThrowAnyException();
@@ -60,8 +60,8 @@ class OrdersTest {
     @Test
     void validate_ShouldThrowWhenOrderExceedsStock() {
         // given
-        Order order1 = new Order(colaProducts, 15); // 재고 초과
-        Order order2 = new Order(sodaProducts, 10); // 재고 초과
+        Order order1 = new Order(colaStocks, 15); // 재고 초과
+        Order order2 = new Order(sodaStocks, 10); // 재고 초과
 
         List<Order> orderItems = List.of(order1, order2);
         // when / then
@@ -86,8 +86,8 @@ class OrdersTest {
     @Test
     void getNormalProductPrice_ShouldReturnCorrectSum() {
         // given
-        Order order1 = new Order(colaProducts, 5); // 프로모션이 존재, 따라서 0
-        Order order2 = new Order(sodaProducts, 4); // 4 * 1200
+        Order order1 = new Order(colaStocks, 5); // 프로모션이 존재, 따라서 0
+        Order order2 = new Order(sodaStocks, 4); // 4 * 1200
 
         Orders orders = new Orders(List.of(order1, order2));
 
@@ -102,7 +102,7 @@ class OrdersTest {
     @Test
     void getFallBackToNormalOrders_ShouldReturnCorrectOrders() {
         // given
-        Order order1 = new Order(colaProducts, 15); // 프로모션 재고 10, 일반재고 5
+        Order order1 = new Order(colaStocks, 15); // 프로모션 재고 10, 일반재고 5
         Orders orders = new Orders(List.of(order1));
 
         // when
@@ -119,7 +119,7 @@ class OrdersTest {
     @Test
     void getFallBackToNormalOrders_ShouldExcludeFullyPromotionalOrders() {
         // given
-        Order order1 = new Order(colaProducts, 8); // 프로모션 재고로 충족 가능
+        Order order1 = new Order(colaStocks, 8); // 프로모션 재고로 충족 가능
 
         Orders orders = new Orders(List.of(order1));
 
