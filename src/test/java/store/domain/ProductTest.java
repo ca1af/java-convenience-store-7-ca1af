@@ -183,7 +183,7 @@ class ProductTest {
             int promotedCount = product.getPromotedCount(8);
 
             // then
-            Assertions.assertThat(promotedCount).isEqualTo(5); // 재고 제한
+            Assertions.assertThat(promotedCount).isEqualTo(1);
         }
     }
 }

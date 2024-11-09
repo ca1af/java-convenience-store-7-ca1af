@@ -28,7 +28,7 @@ public final class Product {
 
     public int getPromotedCount(int orderQuantity){
         if (orderQuantity > quantity){
-            return quantity;
+            return promotion.promotionGetCount(quantity);
         }
         return promotion.promotionGetCount(orderQuantity);
     }
