@@ -16,11 +16,9 @@ public class PromotionFactory {
         if ("null".equals(promotionName)) {
             return null;
         }
-
         if (!promotions.containsKey(promotionName)) {
             throw new IllegalArgumentException(InfraErrorMessage.INVALID_PROMOTION_NAME.getMessage());
         }
-
         return promotions.get(promotionName);
     }
 }

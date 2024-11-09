@@ -1,13 +1,19 @@
 package store.infra;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import store.domain.Product;
+import store.infra.loader.ProductLoader;
+import store.infra.loader.PromotionLoader;
 
-public class ProductStorage {
+public class FilerLoaderProductRepository {
     private final List<Product> stocks;
 
-    public ProductStorage(List<Product> stocks) {
-        this.stocks = stocks; // 불변이어서는 안된다.
+    public FilerLoaderProductRepository() {
+        PromotionLoader promotionLoader = new PromotionLoader();
+        PromotionFactory promotionFactory = new PromotionFactory(promotionLoader.loadPromotions());
+        ProductLoader productLoader = new ProductLoader(promotionFactory);
+        this.stocks = productLoader.loadProducts();
     }
 
     public List<Product> findAllByName(String productName) {
@@ -39,8 +45,8 @@ public class ProductStorage {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        stocks.forEach(sb::append);
-        return sb.toString();
+        return stocks.stream()
+                .map(Product::toString)
+                .collect(Collectors.joining(System.lineSeparator()));
     }
 }
