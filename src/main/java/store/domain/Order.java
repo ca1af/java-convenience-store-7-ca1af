@@ -37,6 +37,10 @@ public class Order {
         return orderProducts.getNormalProductPrice(getNormalProductQuantity());
     }
 
+    public int getPromotedCount(){
+        return orderProducts.getPromotedCount(quantity);
+    }
+
     private int getNormalProductQuantity() {
         int promotionStockUsed = Math.min(quantity, orderProducts.getPromotionStock());
         return quantity - promotionStockUsed;
