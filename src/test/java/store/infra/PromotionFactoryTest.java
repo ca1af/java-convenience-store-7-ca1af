@@ -19,9 +19,9 @@ class PromotionFactoryTest {
     @BeforeEach
     void setUp() {
         List<Promotion> promotions = List.of(
-                new Promotion("탄산2+1", 2, 1, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31)),
-                new Promotion("MD추천상품", 1, 1, LocalDate.of(2024, 1, 1), LocalDate.of(2024, 12, 31)),
-                new Promotion("반짝할인", 1, 1, LocalDate.of(2024, 11, 1), LocalDate.of(2024, 11, 30))
+                new Promotion("탄산2+1", 2, 1, LocalDate.of(2024, 1, 1).atStartOfDay(), LocalDate.of(2024, 12, 31).atStartOfDay()),
+                new Promotion("MD추천상품", 1, 1, LocalDate.of(2024, 1, 1).atStartOfDay(), LocalDate.of(2024, 12, 31).atStartOfDay()),
+                new Promotion("반짝할인", 1, 1, LocalDate.of(2024, 11, 1).atStartOfDay(), LocalDate.of(2024, 11, 30).atStartOfDay())
         );
         promotionFactory = new PromotionFactory(promotions);
     }
@@ -42,8 +42,8 @@ class PromotionFactoryTest {
                     assertThat(promotion.name()).isEqualTo(name);
                     assertThat(promotion.buy()).isEqualTo(buyQuantity);
                     assertThat(promotion.get()).isEqualTo(getQuantity);
-                    assertThat(promotion.startDate()).isEqualTo(LocalDate.parse(startDate));
-                    assertThat(promotion.endDate()).isEqualTo(LocalDate.parse(endDate));
+                    assertThat(promotion.startDate()).isEqualTo(LocalDate.parse(startDate).atStartOfDay());
+                    assertThat(promotion.endDate()).isEqualTo(LocalDate.parse(endDate).atStartOfDay());
                 }
         );
     }

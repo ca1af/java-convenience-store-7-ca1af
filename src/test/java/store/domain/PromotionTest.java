@@ -1,11 +1,10 @@
 package store.domain;
 
+import java.time.LocalDate;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-
-import java.time.LocalDate;
 
 class PromotionTest {
 
@@ -30,7 +29,8 @@ class PromotionTest {
     void testHasUnclaimedFreeItem(String name, int buy, int get, int quantity, boolean expected) {
         // given
         LocalDate today = LocalDate.now();
-        Promotion promotion = new Promotion(name, buy, get, today.minusDays(1), today.plusDays(1));
+        Promotion promotion = new Promotion(name, buy, get, today.minusDays(1).atStartOfDay(),
+                today.plusDays(1).atStartOfDay());
 
         // when
         boolean result = promotion.hasUnclaimedFreeItem(quantity);
@@ -52,9 +52,9 @@ class PromotionTest {
         LocalDate start = LocalDate.parse(startDate);
         LocalDate end = LocalDate.parse(endDate);
         LocalDate now = LocalDate.parse(currentDate);
-        Promotion promotion = new Promotion("foo", 2, 1, start, end);
+        Promotion promotion = new Promotion("foo", 2, 1, start.atStartOfDay(), end.atStartOfDay());
 
-        boolean result = promotion.applicable(now);
+        boolean result = promotion.applicable(now.atStartOfDay());
 
         Assertions.assertThat(result).isEqualTo(expected);
     }

@@ -1,6 +1,7 @@
 package store.domain;
 
-import java.time.LocalDate;
+import camp.nextstep.edu.missionutils.DateTimes;
+import java.time.LocalDateTime;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -8,8 +9,8 @@ import org.junit.jupiter.api.Test;
 
 class ProductTest {
 
-    private final Promotion onePlusOne = new Promotion("1+1", 1, 1, LocalDate.now().minusDays(1), LocalDate.now().plusDays(10));
-    private final Promotion twoPlusOne = new Promotion("2+1", 2, 1, LocalDate.now().minusDays(1), LocalDate.now().plusDays(10));
+    private final Promotion onePlusOne = new Promotion("1+1", 1, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(10));
+    private final Promotion twoPlusOne = new Promotion("2+1", 2, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(10));
 
     @Nested
     @DisplayName("toString 메서드 테스트")
@@ -67,7 +68,7 @@ class ProductTest {
             Product product = new Product("감자칩", 1500, 8, onePlusOne);
 
             // then
-            Assertions.assertThat(product.promotionExists()).isTrue();
+            Assertions.assertThat(product.promotionExists(DateTimes.now())).isTrue();
         }
 
         @Test
@@ -77,7 +78,7 @@ class ProductTest {
             Product product = new Product("초코바", 1200, 5, null);
 
             // then
-            Assertions.assertThat(product.promotionExists()).isFalse();
+            Assertions.assertThat(product.promotionExists(DateTimes.now())).isFalse();
         }
     }
 
@@ -91,7 +92,7 @@ class ProductTest {
             Product product = new Product("콜라", 1000, 10, onePlusOne);
 
             // then
-            Assertions.assertThat(product.hasUnclaimedFreeItem(3)).isTrue();
+            Assertions.assertThat(product.hasUnclaimedFreeItem(3, DateTimes.now())).isTrue();
         }
 
         @Test
@@ -101,7 +102,7 @@ class ProductTest {
             Product product = new Product("콜라", 1000, 5, onePlusOne);
 
             // then
-            Assertions.assertThat(product.hasUnclaimedFreeItem(5)).isFalse();
+            Assertions.assertThat(product.hasUnclaimedFreeItem(5, DateTimes.now())).isFalse();
         }
 
         @Test
@@ -111,7 +112,7 @@ class ProductTest {
             Product product = new Product("콜라", 1000, 10, twoPlusOne);
 
             // then
-            Assertions.assertThat(product.hasUnclaimedFreeItem(5)).isTrue();
+            Assertions.assertThat(product.hasUnclaimedFreeItem(5, DateTimes.now())).isTrue();
         }
 
         @Test
@@ -121,7 +122,7 @@ class ProductTest {
             Product product = new Product("콜라", 1000, 8, twoPlusOne);
 
             // then
-            Assertions.assertThat(product.hasUnclaimedFreeItem(6)).isFalse();
+            Assertions.assertThat(product.hasUnclaimedFreeItem(6, DateTimes.now())).isFalse();
         }
     }
 

@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import store.infra.InfraErrorMessage;
@@ -41,9 +42,9 @@ public abstract class FileLoader<T> {
         return fields;
     }
 
-    protected LocalDate parseDate(String value) {
+    protected LocalDateTime parseDate(String value) {
         try {
-            return LocalDate.parse(value.trim(), DATE_FORMAT);
+            return LocalDate.parse(value.trim(), DATE_FORMAT).atStartOfDay();
         } catch (Exception e) {
             throw new IllegalArgumentException(InfraErrorMessage.INVALID_DATE_FORMAT.getMessage());
         }

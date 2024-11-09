@@ -1,13 +1,16 @@
 package store.domain;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public class Order {
     private final List<Product> stocks;
     private int quantity;
+    private final LocalDateTime orderDate;
 
-    public Order(List<Product> stocks, int quantity) {
+    public Order(List<Product> stocks, int quantity, LocalDateTime orderDate) {
+        this.orderDate = orderDate;
         validateDifferentProducts(stocks);
         this.stocks = stocks;
         validateQuantity(quantity);
@@ -56,7 +59,7 @@ public class Order {
     }
 
     public boolean hasUnclaimedFreeItem() {
-        return stocks.stream().anyMatch(product -> product.hasUnclaimedFreeItem(quantity));
+        return stocks.stream().anyMatch(product -> product.hasUnclaimedFreeItem(quantity, orderDate));
     }
 
     public boolean hasFallbackToNormal() {
@@ -72,7 +75,7 @@ public class Order {
     }
 
     public int getPromotionStock() {
-        return stocks.stream().filter(Product::promotionExists).mapToInt(Product::getQuantity).sum();
+        return stocks.stream().filter(each -> each.promotionExists(orderDate)).mapToInt(Product::getQuantity).sum();
     }
 
     public String getProductName() {
@@ -98,11 +101,11 @@ public class Order {
     }
 
     private Optional<Product> getPromotionProduct() {
-        return stocks.stream().filter(Product::promotionExists).findFirst();
+        return stocks.stream().filter(each -> each.promotionExists(orderDate)).findFirst();
     }
 
     private Optional<Product> getNormalProduct() {
-        return stocks.stream().filter(product -> !product.promotionExists()).findFirst();
+        return stocks.stream().filter(product -> !product.promotionExists(orderDate)).findFirst();
     }
 
     private int getNormalProductQuantity() {

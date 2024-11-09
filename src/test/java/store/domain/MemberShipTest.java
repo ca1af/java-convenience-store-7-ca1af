@@ -1,6 +1,7 @@
 package store.domain;
 
-import java.time.LocalDate;
+import camp.nextstep.edu.missionutils.DateTimes;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
@@ -19,7 +20,7 @@ class MemberShipTest {
     @BeforeEach
     void setUp() {
         memberShip = new MemberShip();
-        promotion = new Promotion("Sample Promotion", 2, 1, LocalDate.now(), LocalDate.now().plusDays(10));
+        promotion = new Promotion("Sample Promotion", 2, 1, LocalDateTime.now(), LocalDateTime.now().plusDays(10));
     }
 
     @DisplayName("할인을 적용한다.")
@@ -32,7 +33,7 @@ class MemberShipTest {
     void apply30PercentDiscount(int price, int expectedDiscount) {
         // given
         Product product = new Product("NonPromoItem", price, 1, null);
-        Orders orders = new Orders(List.of(new Order(List.of(product), 1)));
+        Orders orders = new Orders(List.of(new Order(List.of(product), 1, DateTimes.now())));
 
         // when
         int discount = memberShip.applyDiscount(orders);
@@ -46,7 +47,7 @@ class MemberShipTest {
     void applyDiscount_shouldLimitDiscountToEligibleAmount() {
         // given
         Product expensiveProduct = new Product("ExpensiveItem", 26667, 1, null); // 경계값
-        Orders orders = new Orders(List.of(new Order(List.of(expensiveProduct), 1)));
+        Orders orders = new Orders(List.of(new Order(List.of(expensiveProduct), 1, DateTimes.now())));
 
         // when
         int discount = memberShip.applyDiscount(orders);
@@ -63,8 +64,8 @@ class MemberShipTest {
         // given
         Product product1 = new Product("Item1", 10000, 1, null);
         Product expensiveProduct = new Product("ExpensiveItem", 26667, 1, null); // 경계값
-        Orders orders1 = new Orders(List.of(new Order(List.of(product1), 1)));
-        Orders orders2 = new Orders(List.of(new Order(List.of(expensiveProduct), 1)));
+        Orders orders1 = new Orders(List.of(new Order(List.of(product1), 1, DateTimes.now())));
+        Orders orders2 = new Orders(List.of(new Order(List.of(expensiveProduct), 1, DateTimes.now())));
 
         // when
         int discount1 = memberShip.applyDiscount(orders1);
@@ -84,9 +85,9 @@ class MemberShipTest {
         Product promotionalProduct = new Product("PromoItem", 10000, 1, promotion); // 프로모션 적용 상품
         Product nonPromotionalProduct = new Product("NonPromoItem", 10000, 1, null); // 프로모션 없음
         Orders orders = new Orders(List.of(
-                new Order(List.of(promotionalProduct), 1),
-                new Order(List.of(nonPromotionalProduct), 1)
-        ));
+                new Order(List.of(promotionalProduct), 1, DateTimes.now()),
+                new Order(List.of(nonPromotionalProduct), 1, DateTimes.now()))
+        );
 
         // when
         int discount = memberShip.applyDiscount(orders);

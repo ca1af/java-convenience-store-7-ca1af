@@ -1,23 +1,31 @@
 package store.domain;
 
+import camp.nextstep.edu.missionutils.DateTimes;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 class ReceiptPrinterTest {
+    private LocalDateTime orderDate;
+
+    @BeforeEach
+    void setUp() {
+        orderDate = DateTimes.now();
+    }
 
     @Test
     @DisplayName("영수증 출력 테스트 - 정상 출력")
     void printReceiptSuccessfully() {
         // given
-        Product cola = new Product("콜라", 1000, 10, new Promotion("2+1", 2, 1, LocalDate.now(), LocalDate.now().plusDays(1)));
+        Product cola = new Product("콜라", 1000, 10, new Promotion("2+1", 2, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1)));
         Product energyBar = new Product("에너지바", 2000, 5, null);
 
-        Order order1 = new Order(List.of(cola), 6); // 6개 구매 -> 2+1 프로모션 -> 증정 2개
-        Order order2 = new Order(List.of(energyBar), 5); // 5개 구매, 프로모션 없음
+        Order order1 = new Order(List.of(cola), 6, orderDate); // 6개 구매 -> 2+1 프로모션 -> 증정 2개
+        Order order2 = new Order(List.of(energyBar), 5, orderDate); // 5개 구매, 프로모션 없음
 
         Orders orders = new Orders(List.of(order1, order2));
         int memberShipDiscount = 3000;
@@ -50,8 +58,8 @@ class ReceiptPrinterTest {
         Product water = new Product("물", 500, 10, null);
         Product snack = new Product("스낵", 1500, 5, null);
 
-        Order order1 = new Order(List.of(water), 3); // 3개 구매
-        Order order2 = new Order(List.of(snack), 4); // 4개 구매
+        Order order1 = new Order(List.of(water), 3, orderDate); // 3개 구매
+        Order order2 = new Order(List.of(snack), 4, orderDate); // 4개 구매
 
         Orders orders = new Orders(List.of(order1, order2));
         int memberShipDiscount = 2000;
@@ -80,9 +88,9 @@ class ReceiptPrinterTest {
     @DisplayName("영수증 출력 테스트 - 멤버십 할인 없는 경우")
     void printReceiptWithoutMemberShipDiscount() {
         // given
-        Product juice = new Product("주스", 2000, 10, new Promotion("1+1", 1, 1, LocalDate.now(), LocalDate.now().plusDays(1)));
+        Product juice = new Product("주스", 2000, 10, new Promotion("1+1", 1, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1)));
 
-        Order order = new Order(List.of(juice), 8); // 8개 구매 -> 1+1 프로모션 -> 증정 4개
+        Order order = new Order(List.of(juice), 8, orderDate); // 8개 구매 -> 1+1 프로모션 -> 증정 4개
 
         Orders orders = new Orders(List.of(order));
         int memberShipDiscount = 0;

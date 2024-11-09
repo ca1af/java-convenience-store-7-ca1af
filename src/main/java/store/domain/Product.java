@@ -1,5 +1,6 @@
 package store.domain;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 public final class Product {
@@ -33,12 +34,16 @@ public final class Product {
         return promotion.promotionGetCount(orderQuantity);
     }
 
-    public boolean promotionExists() {
+    public boolean promotionExists(LocalDateTime orderDate) {
+        return promotionNotNull() && promotion.applicable(orderDate);
+    }
+
+    private boolean promotionNotNull(){
         return !Objects.isNull(promotion);
     }
 
-    public boolean hasUnclaimedFreeItem(int quantity) {
-        if (!promotionExists() || quantity <= 0){
+    public boolean hasUnclaimedFreeItem(int quantity, LocalDateTime orderDate) {
+        if (!promotionExists(orderDate) || quantity <= 0){
             return false;
         }
         if (quantity >= this.quantity) { // 같다면 무료 증정이 불가하다 (1+1 으로 5개 주문, 재고 5개면 5개 나가야한다.)
@@ -64,11 +69,13 @@ public final class Product {
     }
 
     private String formatOutOfStock() {
-        return "- "
-                + name
-                + " "
-                + String.format("%,d원", price)
-                + " 재고 없음";
+        StringBuilder sb = new StringBuilder("- ")
+                .append(name)
+                .append(" ")
+                .append(String.format("%,d원", price))
+                .append(" 재고 없음");
+        appendPromotionInfo(sb);
+        return sb.toString();
     }
 
     private void appendBasicInfo(StringBuilder sb) {
@@ -82,7 +89,7 @@ public final class Product {
     }
 
     private void appendPromotionInfo(StringBuilder sb) {
-        if (promotionExists()) {
+        if (promotionNotNull()) {
             sb.append(" ").append(promotion.name());
         }
     }

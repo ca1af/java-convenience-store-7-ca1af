@@ -2,7 +2,8 @@ package store.domain;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import java.time.LocalDate;
+import camp.nextstep.edu.missionutils.DateTimes;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
@@ -15,25 +16,27 @@ class OrdersTest {
     private List<Product> colaStocks;
     private List<Product> sodaStocks;
     private List<Product> promotionStocks;
+    private LocalDateTime orderDate;
 
     @BeforeEach
     void setUp() {
         Product cola = new Product("콜라", 1000, 10, null);
         Product soda = new Product("사이다", 1200, 8, null);
-        Promotion promotion = new Promotion("1+1", 1, 1, LocalDate.now().minusDays(1), LocalDate.now().plusDays(1));
+        Promotion promotion = new Promotion("1+1", 1, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1));
         Product colaPromo = new Product("콜라", 1000, 10, promotion);
         Product promotionProduct = new Product("감자칩", 1500, 5, promotion);
 
         colaStocks = List.of(cola, colaPromo);
         sodaStocks = List.of(soda);
         promotionStocks = List.of(promotionProduct);
+        orderDate = DateTimes.now();
     }
 
     @Test
     @DisplayName("상품의 총합 가격을 반환한다.")
     void getTotalPrice() {
-        Order order1 = new Order(colaStocks, 4);
-        Order order2 = new Order(promotionStocks, 3);
+        Order order1 = new Order(colaStocks, 4, orderDate);
+        Order order2 = new Order(promotionStocks, 3, orderDate);
 
         Orders orders = new Orders(List.of(order1, order2));
 
@@ -48,8 +51,8 @@ class OrdersTest {
     @Test
     void getRemaining_ShouldReturnFreeRemainingOrders() {
         // given
-        Order order1 = new Order(colaStocks, 4);
-        Order order2 = new Order(promotionStocks, 3);
+        Order order1 = new Order(colaStocks, 4, orderDate);
+        Order order2 = new Order(promotionStocks, 3, orderDate);
 
         Orders orders = new Orders(List.of(order1, order2));
 
@@ -64,8 +67,8 @@ class OrdersTest {
     @Test
     void validate_ShouldNotThrowWhenAllOrdersAreValid() {
         // given
-        Order order1 = new Order(colaStocks, 5);
-        Order order2 = new Order(sodaStocks, 4);
+        Order order1 = new Order(colaStocks, 5, orderDate);
+        Order order2 = new Order(promotionStocks, 4, orderDate);
 
         // when / then
         Assertions.assertThatCode(() -> new Orders(List.of(order1, order2))).doesNotThrowAnyException();
@@ -75,8 +78,8 @@ class OrdersTest {
     @Test
     void validate_ShouldThrowWhenOrderExceedsStock() {
         // given
-        Order order1 = new Order(colaStocks, 15); // 재고 초과
-        Order order2 = new Order(sodaStocks, 10); // 재고 초과
+        Order order1 = new Order(colaStocks, 15, orderDate); // 재고 초과
+        Order order2 = new Order(sodaStocks, 10, orderDate); // 재고 초과
 
         List<Order> orderItems = List.of(order1, order2);
         // when / then
@@ -90,7 +93,7 @@ class OrdersTest {
     void validate_ShouldThrowWhenOrdersAreEmpty() {
         // given
         List<Order> emptyOrders = List.of();
-
+        
         // when / then
         assertThatThrownBy(() -> new Orders(emptyOrders))
                 .isInstanceOf(IllegalArgumentException.class)
@@ -101,8 +104,8 @@ class OrdersTest {
     @Test
     void getNormalProductPrice_ShouldReturnCorrectSum() {
         // given
-        Order order1 = new Order(colaStocks, 5); // 프로모션이 존재, 따라서 0
-        Order order2 = new Order(sodaStocks, 4); // 4 * 1200
+        Order order1 = new Order(colaStocks, 5, orderDate); // 프로모션이 존재, 따라서 0
+        Order order2 = new Order(sodaStocks, 4, orderDate); // 4 * 1200
 
         Orders orders = new Orders(List.of(order1, order2));
 
@@ -117,7 +120,7 @@ class OrdersTest {
     @Test
     void getFallBackToNormalOrders_ShouldReturnCorrectOrders() {
         // given
-        Order order1 = new Order(colaStocks, 15); // 프로모션 재고 10, 일반재고 5
+        Order order1 = new Order(colaStocks, 15, orderDate); // 프로모션 재고 10, 일반재고 5
         Orders orders = new Orders(List.of(order1));
 
         // when
@@ -134,7 +137,7 @@ class OrdersTest {
     @Test
     void getFallBackToNormalOrders_ShouldExcludeFullyPromotionalOrders() {
         // given
-        Order order1 = new Order(colaStocks, 8); // 프로모션 재고로 충족 가능
+        Order order1 = new Order(colaStocks, 8, orderDate); // 프로모션 재고로 충족 가능
 
         Orders orders = new Orders(List.of(order1));
 

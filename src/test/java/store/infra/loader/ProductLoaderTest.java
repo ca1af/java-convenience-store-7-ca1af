@@ -1,5 +1,6 @@
 package store.infra.loader;
 
+import camp.nextstep.edu.missionutils.DateTimes;
 import java.util.List;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,14 +34,14 @@ class ProductLoaderTest {
         List<Product> products = productLoader.loadProducts();
 
         // when
-        Product product = findProductByName(products, name);
+        Product product = findProductByNameAndPromotion(products, name, promotionName);
 
         // then
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(product.getName()).isEqualTo(name);
             softly.assertThat(product.getPrice()).isEqualTo(price);
             softly.assertThat(product.getQuantity()).isEqualTo(quantity);
-            softly.assertThat(product.promotionExists()).isTrue();
+            softly.assertThat(product.promotionExists(DateTimes.now())).isTrue();
         });
     }
 
@@ -56,21 +57,25 @@ class ProductLoaderTest {
         List<Product> products = productLoader.loadProducts();
 
         // when
-        Product product = findProductByName(products, name);
+        Product product = findProductByNameAndPromotion(products, name, promotionName);
 
         // then
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(product.getName()).isEqualTo(name);
             softly.assertThat(product.getPrice()).isEqualTo(price);
             softly.assertThat(product.getQuantity()).isEqualTo(quantity);
-            softly.assertThat(product.promotionExists()).isFalse();
+            softly.assertThat(product.promotionExists(DateTimes.now())).isFalse();
         });
     }
 
-    private Product findProductByName(List<Product> products, String name) {
+    private Product findProductByNameAndPromotion(List<Product> products, String name, String promotionName) {
         return products.stream()
                 .filter(product -> product.getName().equals(name))
+                .filter(product ->
+                        ("null".equals(promotionName) && !product.promotionExists(DateTimes.now())) ||
+                                (!"null".equals(promotionName) && product.promotionExists(DateTimes.now()))
+                )
                 .findFirst()
-                .orElseThrow();
+                .orElseThrow(() -> new IllegalArgumentException("No matching product found."));
     }
 }

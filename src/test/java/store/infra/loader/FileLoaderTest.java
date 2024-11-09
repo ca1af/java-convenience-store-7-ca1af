@@ -1,6 +1,7 @@
 package store.infra.loader;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
@@ -85,8 +86,8 @@ class FileLoaderTest {
             "2023-12-31, 2023-12-31"
     })
     void shouldParseDateSuccessfully(String input, String expectedDate) {
-        LocalDate date = fileLoader.parseDate(input);
-        Assertions.assertThat(date).isEqualTo(LocalDate.parse(expectedDate));
+        LocalDateTime date = fileLoader.parseDate(input);
+        Assertions.assertThat(date).isEqualTo(LocalDate.parse(expectedDate).atStartOfDay());
     }
 
     @DisplayName("잘못된 날짜 형식을 파싱할 때 예외가 발생한다.")

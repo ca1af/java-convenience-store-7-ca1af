@@ -1,6 +1,6 @@
 package store.infra.loader;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import store.domain.Promotion;
 
@@ -31,8 +31,8 @@ public class PromotionLoader extends FileLoader<Promotion> {
         String name = fields[0].trim();
         int buyQuantity = parseInteger(fields[1]);
         int getQuantity = parseInteger(fields[2]);
-        LocalDate startDate = parseDate(fields[3]);
-        LocalDate endDate = parseDate(fields[4]);
+        LocalDateTime startDate = parseDate(fields[3]);
+        LocalDateTime endDate = parseDate(fields[4]);
         return new Promotion(name, buyQuantity, getQuantity, startDate, endDate);
     }
 }
