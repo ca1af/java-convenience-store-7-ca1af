@@ -11,18 +11,32 @@ public class Orders {
         this.requestedOrders = requestedOrders;
     }
 
-    public List<Order> getUnclaimedFreeItemOrder() {
-        return requestedOrders.stream().filter(Order::hasUnclaimedFreeItem).toList();
+    public List<Order> getRequestedOrders() {
+        return List.copyOf(requestedOrders);
     }
 
-    public boolean hasUnclaimedFreeItem() {
-        return requestedOrders.stream().anyMatch(Order::hasUnclaimedFreeItem);
+    public List<Order> getUnclaimedFreeItemOrder() {
+        return requestedOrders.stream().filter(Order::hasUnclaimedFreeItem).toList();
     }
 
     public List<Order> getPromotedOrders(){
         return requestedOrders.stream()
                 .filter(each -> each.getPromotedCount() > 0)
                 .toList();
+    }
+
+    public int getTotalPrice() {
+        return requestedOrders.stream().mapToInt(Order::getTotalPrice).sum();
+    }
+
+    public int getPromotionDiscount() {
+        return getPromotedOrders().stream()
+                .mapToInt(order -> order.getPromotedCount() * order.getProductPrice())
+                .sum();
+    }
+
+    public int getTotalQuantity() {
+        return requestedOrders.stream().mapToInt(Order::getQuantity).sum();
     }
 
     private void validateSelf(List<Order> orders) {

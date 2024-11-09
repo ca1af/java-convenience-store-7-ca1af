@@ -29,6 +29,21 @@ class OrdersTest {
         promotionStocks = List.of(promotionProduct);
     }
 
+    @Test
+    @DisplayName("상품의 총합 가격을 반환한다.")
+    void getTotalPrice() {
+        Order order1 = new Order(colaStocks, 4);
+        Order order2 = new Order(promotionStocks, 3);
+
+        Orders orders = new Orders(List.of(order1, order2));
+
+        // when
+        int totalAmount = orders.getTotalPrice();
+
+        // then
+        Assertions.assertThat(totalAmount).isEqualTo(8500);
+    }
+
     @DisplayName("무료 증정품이 존재하는 주문만 반환한다")
     @Test
     void getRemaining_ShouldReturnFreeRemainingOrders() {

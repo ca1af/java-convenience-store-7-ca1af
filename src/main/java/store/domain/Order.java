@@ -28,6 +28,10 @@ public class Order {
         }
     }
 
+    public int getProductPrice(){
+        return stocks.getFirst().getPrice();
+    }
+
     public void addQuantity() {
         this.quantity++;
     }
@@ -78,6 +82,14 @@ public class Order {
     public void decreaseStocks() {
         int remainingQuantity = decreasePromotionAmount(quantity);
         getNormalProduct().ifPresent(product -> product.decrease(remainingQuantity));
+    }
+
+    public int getTotalPrice() {
+        return getProductPrice() * quantity;
+    }
+
+    public int getQuantity() {
+        return quantity;
     }
 
     private int decreasePromotionAmount(int quantity) {
