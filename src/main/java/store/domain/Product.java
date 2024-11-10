@@ -4,6 +4,10 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public final class Product {
+    private static final String OUT_OF_STOCK_MESSAGE = " 재고 없음";
+    private static final String WITH_STOCK_FORMAT = "%s %,d원 %d개";
+    private static final String OUT_OF_STOCK_FORMAT = "%s %,d원";
+    private static final String MESSAGE_PREFIX = "- ";
     private final String name;
     private final int price;
     private final Promotion promotion;
@@ -57,41 +61,22 @@ public final class Product {
         if (quantity > 0) {
             return formatWithStock();
         }
-
         return formatOutOfStock();
     }
 
     private String formatWithStock() {
-        StringBuilder sb = new StringBuilder();
-        appendBasicInfo(sb);
-        appendPromotionInfo(sb);
-        return sb.toString();
+        return String.format(WITH_STOCK_FORMAT, MESSAGE_PREFIX + name, price, quantity) + getPromotionInfo();
     }
 
     private String formatOutOfStock() {
-        StringBuilder sb = new StringBuilder("- ")
-                .append(name)
-                .append(" ")
-                .append(String.format("%,d원", price))
-                .append(" 재고 없음");
-        appendPromotionInfo(sb);
-        return sb.toString();
+        return String.format(OUT_OF_STOCK_FORMAT, MESSAGE_PREFIX + name, price) + OUT_OF_STOCK_MESSAGE + getPromotionInfo();
     }
 
-    private void appendBasicInfo(StringBuilder sb) {
-        sb.append("- ")
-                .append(name)
-                .append(" ")
-                .append(String.format("%,d원", price))
-                .append(" ")
-                .append(quantity)
-                .append("개");
-    }
-
-    private void appendPromotionInfo(StringBuilder sb) {
+    private String getPromotionInfo() {
         if (promotionNotNull()) {
-            sb.append(" ").append(promotion.name());
+            return " " + promotion.name();
         }
+        return "";
     }
 
     public String getName() {
