@@ -1,18 +1,18 @@
 package store.presentation;
 
 import java.util.List;
-import store.domain.Orders;
+import store.domain.Order;
 
 public class ReceiptFormatter {
     private static final String STORE_HEADER = "==============W 편의점================";
     private static final String PROMOTION_HEADER = "=============증\t\t정===============";
     private static final String DIVIDER = "====================================";
 
-    private final Orders orders;
+    private final Order order;
     private final int memberShipDiscount;
 
-    public ReceiptFormatter(Orders orders, int memberShipDiscount) {
-        this.orders = orders;
+    public ReceiptFormatter(Order order, int memberShipDiscount) {
+        this.order = order;
         this.memberShipDiscount = memberShipDiscount;
     }
 
@@ -26,17 +26,17 @@ public class ReceiptFormatter {
 
     private void appendOrderSection(StringBuilder receipt) {
         receipt.append(STORE_HEADER).append(System.lineSeparator());
-        formatReceipts(receipt, Receipt.ofList(orders));
+        formatReceipts(receipt, Receipt.ofList(order));
     }
 
     private void appendPromotionSection(StringBuilder receipt) {
         receipt.append(PROMOTION_HEADER).append(System.lineSeparator());
-        formatReceipts(receipt, Receipt.ofPromotedOrders(orders));
+        formatReceipts(receipt, Receipt.ofPromotedOrders(order));
         receipt.append(DIVIDER).append(System.lineSeparator());
     }
 
     private void appendPaymentSection(StringBuilder receipt) {
-        PaymentDetail paymentDetail = PaymentDetail.of(orders, memberShipDiscount);
+        PaymentDetail paymentDetail = PaymentDetail.of(order, memberShipDiscount);
         appendPaymentLine(receipt, "총구매액", "", paymentDetail.totalAmount());
         appendPaymentLine(receipt, "행사할인", "-", paymentDetail.promotionDiscount());
         appendPaymentLine(receipt, "멤버십할인", "-", memberShipDiscount);

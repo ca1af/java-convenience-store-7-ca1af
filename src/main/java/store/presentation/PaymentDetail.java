@@ -1,14 +1,14 @@
 package store.presentation;
 
-import store.domain.Orders;
+import store.domain.Order;
 
 public record PaymentDetail(int totalAmount, int promotionDiscount, int totalQuantity, int memberShipDiscount,
                             int paymentAmount) {
-    public static PaymentDetail of(Orders orders, int memberShipDiscount) {
-        int totalAmount = orders.getTotalPrice();
-        int promotionDiscount = orders.getPromotionDiscount();
+    public static PaymentDetail of(Order order, int memberShipDiscount) {
+        int totalAmount = order.getTotalPrice();
+        int promotionDiscount = order.getPromotionDiscount();
         int paymentAmount = totalAmount - promotionDiscount - memberShipDiscount;
-        int totalQuantity = orders.getTotalQuantity();
+        int totalQuantity = order.getTotalQuantity();
         return new PaymentDetail(totalAmount, promotionDiscount, memberShipDiscount, totalQuantity, paymentAmount);
     }
 }

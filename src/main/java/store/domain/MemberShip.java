@@ -4,8 +4,8 @@ public class MemberShip {
     private static final double DISCOUNT_RATE = 0.3;
     private int eligibleAmount = 8_000;
 
-    public int applyDiscount(Orders orders) {
-        int normalProductPrice = orders.getNormalProductPrice();
+    public int applyDiscount(Order order) {
+        int normalProductPrice = order.getNormalProductPrice();
         int discountAmount = (int) (normalProductPrice * DISCOUNT_RATE);
         return calculate(discountAmount);
     }

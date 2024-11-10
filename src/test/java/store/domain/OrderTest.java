@@ -1,197 +1,212 @@
 package store.domain;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class OrderTest {
-    private final Promotion onePlusOne = new Promotion("1+1", 1, 1, LocalDateTime.now().minusDays(1),
-            LocalDateTime.now().plusDays(1));
-    private final Promotion twoPlusOne = new Promotion("2+1", 2, 1, LocalDateTime.now().minusDays(1),
-            LocalDateTime.now().plusDays(1));
-    private final Product normalProduct = new Product("foo", 1000, 5, null);
-    private final Product promoProductOnePlusOne = new Product("foo", 1000, 10, onePlusOne);
-    private final List<Product> stocksOnePlusOne = List.of(promoProductOnePlusOne, normalProduct);
-    private final Product promoProductTwoPlusOne = new Product("foo", 2000, 15, twoPlusOne);
-    private final List<Product> stocksTwoPlusOne = List.of(promoProductTwoPlusOne, normalProduct);
+    private List<Product> onePromoOneNormalCola;
+    private List<Product> normarSodaStock;
+    private List<Product> promotionPotatoChipStock;
+    private LocalDateTime orderDate;
+    private Product cola;
+    private Product colaPromo;
 
-    private Order createOrder(List<Product> products, int orderQuantity) {
-        return new Order(products, orderQuantity, DateTimes.now());
+    @BeforeEach
+    void setUp() {
+        cola = new Product("콜라", 1000, 10, null);
+        Product soda = new Product("사이다", 1200, 8, null);
+        Promotion promotion = new Promotion("1+1", 1, 1, LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1));
+        colaPromo = new Product("콜라", 1000, 10, promotion);
+        Product promotionProduct = new Product("감자칩", 1500, 5, promotion);
+        orderDate = DateTimes.now();
+        setupProductLists(soda, promotionProduct);
+    }
+
+    private void setupProductLists(Product soda, Product promotionProduct) {
+        onePromoOneNormalCola = List.of(cola, colaPromo);
+        normarSodaStock = List.of(soda);
+        promotionPotatoChipStock = List.of(promotionProduct);
     }
 
     @Test
-    @DisplayName("수량을 1 증가시킨다")
-    void shouldIncreaseQuantityByOne() {
-        Order order = createOrder(stocksOnePlusOne, 5);
-        order.addQuantity();
-        Assertions.assertThat(order.countFallbackToNormal()).isZero(); // 프로모션 재고 충분
-        Assertions.assertThat(order.hasFallbackToNormal()).isFalse();
+    @DisplayName("getRequestedOrders 로 불변 리스트를 리턴받는다.")
+    void getRequestedOrders() {
+        OrderProduct orderProduct1 = new OrderProduct(onePromoOneNormalCola, 4, orderDate);
+        Order order = new Order(List.of(orderProduct1));
+
+        List<OrderProduct> requestedOrderProducts = order.getRequestedOrders();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(requestedOrderProducts).containsExactly(orderProduct1);
+            softly.assertThatThrownBy(requestedOrderProducts::removeFirst).isInstanceOf(UnsupportedOperationException.class);
+        });
     }
 
     @Test
-    @DisplayName("수량을 감소시킨다")
-    void shouldSubtract() {
-        Order order = createOrder(stocksOnePlusOne, 5);
-        order.subtract(2);
-        Assertions.assertThat(order.countFallbackToNormal()).isZero();
+    @DisplayName("requestedOrders 메서드는 프로모션이 적용된 상품만 반환한다.")
+    void getPromotedOrders() {
+        OrderProduct orderProduct1 = new OrderProduct(normarSodaStock, 4, orderDate);
+        OrderProduct orderProduct2 = new OrderProduct(promotionPotatoChipStock, 3, orderDate);
+        Order order = new Order(List.of(orderProduct1, orderProduct2));
+
+        List<OrderProduct> requestedOrderProducts = order.getPromotedOrders();
+
+        Assertions.assertThat(requestedOrderProducts).containsExactly(orderProduct2);
+    }
+
+    @Test
+    @DisplayName("getPromotionDiscount 메서드는 프로모션이 적용 금액을 계산한다")
+    void getPromotionDiscount() {
+        OrderProduct orderProduct1 = new OrderProduct(normarSodaStock, 4, orderDate);
+        OrderProduct orderProduct2 = new OrderProduct(promotionPotatoChipStock, 3, orderDate);
+        Order order = new Order(List.of(orderProduct1, orderProduct2));
+
+        int promotionDiscount = order.getPromotionDiscount();
+
+        Assertions.assertThat(promotionDiscount).isEqualTo(1500);
+    }
+
+    @Test
+    @DisplayName("getTotalQuantity 메서드는 총 주문 수량을 계산한다")
+    void getTotalQuantity() {
+        OrderProduct orderProduct1 = new OrderProduct(normarSodaStock, 4, orderDate);
+        OrderProduct orderProduct2 = new OrderProduct(promotionPotatoChipStock, 3, orderDate);
+        Order order = new Order(List.of(orderProduct1, orderProduct2));
+
+        int promotionDiscount = order.getTotalQuantity();
+
+        Assertions.assertThat(promotionDiscount).isEqualTo(7);
+    }
+
+    @Test
+    @DisplayName("상품의 총합 가격을 반환한다.")
+    void getTotalPrice() {
+        OrderProduct orderProduct1 = new OrderProduct(onePromoOneNormalCola, 4, orderDate);
+        OrderProduct orderProduct2 = new OrderProduct(promotionPotatoChipStock, 3, orderDate);
+
+        Order order = new Order(List.of(orderProduct1, orderProduct2));
+
+        int totalAmount = order.getTotalPrice();
+
+        Assertions.assertThat(totalAmount).isEqualTo(8500);
+    }
+
+    @Test
+    @DisplayName("무료 증정품이 존재하는 주문만 반환한다")
+    void getRemaining_ShouldReturnFreeRemainingOrders() {
+        OrderProduct orderProduct1 = new OrderProduct(onePromoOneNormalCola, 4, orderDate);
+        OrderProduct orderProduct2 = new OrderProduct(promotionPotatoChipStock, 3, orderDate);
+
+        Order order = new Order(List.of(orderProduct1, orderProduct2));
+
+        List<OrderProduct> remainingOrderProducts = order.getUnclaimedFreeItemOrder();
+
+        Assertions.assertThat(remainingOrderProducts).containsExactly(orderProduct2);
+    }
+
+    @Test
+    @DisplayName("모든 주문이 충족 가능한 경우 validate가 예외를 발생시키지 않는다")
+    void validate_ShouldNotThrowWhenAllOrdersAreValid() {
+        OrderProduct orderProduct1 = new OrderProduct(onePromoOneNormalCola, 5, orderDate);
+        OrderProduct orderProduct2 = new OrderProduct(promotionPotatoChipStock, 4, orderDate);
+
+        Assertions.assertThatCode(() -> new Order(List.of(orderProduct1, orderProduct2))).doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("주문 수량이 재고를 초과할 경우 validate가 예외를 발생시킨다")
+    void validate_ShouldThrowWhenOrderExceedsStock() {
+        OrderProduct orderProduct1 = new OrderProduct(onePromoOneNormalCola, 15, orderDate); // 재고 초과
+        OrderProduct orderProduct2 = new OrderProduct(normarSodaStock, 10, orderDate); // 재고 초과
+
+        List<OrderProduct> orderItemProducts = List.of(orderProduct1, orderProduct2);
+        assertThatThrownBy(() -> new Order(orderItemProducts)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage(DomainErrorMessage.QUANTITY_EXCEEDED.getMessage());
+    }
+
+    @Test
+    @DisplayName("빈 주문 리스트가 들어오면 예외가 발생한다")
+    void validate_ShouldThrowWhenOrdersAreEmpty() {
+        List<OrderProduct> emptyOrderProducts = List.of();
+
+        assertThatThrownBy(() -> new Order(emptyOrderProducts)).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage(DomainErrorMessage.INVALID_INPUT.getMessage());
+    }
+
+    @Test
+    @DisplayName("일반 상품의 총 가격을 정확히 반환한다")
+    void calculateNormalProductPrice_ShouldReturnCorrectSum() {
+        OrderProduct orderProduct1 = new OrderProduct(onePromoOneNormalCola, 5, orderDate); // 프로모션이 존재, 따라서 0
+        OrderProduct orderProduct2 = new OrderProduct(normarSodaStock, 4, orderDate); // 4 * 1200
+        Order order = new Order(List.of(orderProduct1, orderProduct2));
+
+        int normalProductPrice = order.getNormalProductPrice();
+
+        Assertions.assertThat(normalProductPrice).isEqualTo(4800);
+    }
+
+    @Test
+    @DisplayName("일반 재고를 사용해야 하는 주문만 반환한다")
+    void getFallBackToNormalOrders_ShouldReturnCorrectOrders() {
+        OrderProduct orderProduct1 = new OrderProduct(onePromoOneNormalCola, 15, orderDate); // 프로모션 재고 10, 일반재고 5
+        Order order = new Order(List.of(orderProduct1));
+
+        List<OrderProduct> fallbackOrderProducts = order.getFallBackToNormalOrders();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(fallbackOrderProducts).containsExactly(orderProduct1);
+            softly.assertThat(fallbackOrderProducts.getFirst().countFallbackToNormal()).isEqualTo(5);
+        });
+    }
+
+    @Test
+    @DisplayName("getFallBackToNormalOrders: 프로모션 재고로만 충족 가능한 주문은 반환하지 않는다")
+    void getFallBackToNormalOrders_ShouldExcludeFullyPromotionalOrders() {
+        OrderProduct orderProduct1 = new OrderProduct(onePromoOneNormalCola, 8, orderDate); // 프로모션 재고로 충족 가능
+        Order order = new Order(List.of(orderProduct1));
+
+        List<OrderProduct> fallbackOrderProducts = order.getFallBackToNormalOrders();
+
+        Assertions.assertThat(fallbackOrderProducts).isEmpty();
     }
 
     @Nested
-    @DisplayName("validateDifferentProducts 메서드 테스트")
-    class ValidateDifferentProductsTests {
+    @DisplayName("decreaseAmount 테스트")
+    class DecreaseAmount {
         @Test
-        @DisplayName("같은 상품으로 구성된 리스트는 예외를 발생시키지 않는다")
-        void shouldNotThrowWhenProductsAreSame() {
-            Assertions.assertThatCode(() -> createOrder(stocksOnePlusOne, 5)).doesNotThrowAnyException();
+        @DisplayName("decreaseAmount 메서드는 총 주문 수량을 계산한다")
+        void decreaseAmount() {
+            OrderProduct orderProduct1 = new OrderProduct(normarSodaStock, 4, orderDate);
+            OrderProduct orderProduct2 = new OrderProduct(promotionPotatoChipStock, 3, orderDate);
+            Order order = new Order(List.of(orderProduct1, orderProduct2));
+
+            int promotionDiscount = order.getTotalQuantity();
+
+            Assertions.assertThat(promotionDiscount).isEqualTo(7);
         }
 
         @Test
-        @DisplayName("다른 상품이 섞여 있는 경우 예외를 발생시킨다")
-        void shouldThrowWhenProductsAreDifferent() {
-            List<Product> mixedStocks = List.of(normalProduct, new Product("bar", 1500, 10, null));
+        @DisplayName("decreaseAmount 메서드는 프로모션 재고 먼저 차감하고 그 후 일반 재고를 차감한다.")
+        void decreaseAmount_promo() {
+            OrderProduct orderProduct1 = new OrderProduct(onePromoOneNormalCola, 14, orderDate);
+            Order order = new Order(List.of(orderProduct1));
 
-            Assertions.assertThatThrownBy(() -> createOrder(mixedStocks, 5))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage(DomainErrorMessage.NOT_IDENTICAL.getMessage());
-        }
-    }
+            order.decreaseAmount();
 
-    @Nested
-    @DisplayName("hasFallbackToNormal 메서드 테스트")
-    class HasFallbackToNormal {
-        @Test
-        @DisplayName("프로모션이 없는 상품은 false 를 반환한다.")
-        void promotionIsEmpty() {
-            Order order = new Order(List.of(normalProduct), 10, DateTimes.now());
-
-            boolean expected = order.hasFallbackToNormal();
-
-            Assertions.assertThat(expected).isFalse();
-        }
-
-        @Test
-        @DisplayName("프로모션이 존재하며 상품 재고가 없으면 true 를 반환한다.")
-        void promotionOutOfStock() {
-            Product outOfStock = new Product("outOfStock", 1000, 0, onePlusOne);
-            Order order = new Order(List.of(outOfStock), 10, DateTimes.now());
-
-            boolean expected = order.hasFallbackToNormal();
-
-            Assertions.assertThat(expected).isTrue();
-        }
-    }
-
-    @Nested
-    @DisplayName("hasFallbackToNormal 메서드 테스트")
-    class HasFallbackToNormalTests {
-        @Test
-        @DisplayName("일반 재고를 사용해야 하는 경우 true를 반환한다")
-        void shouldReturnTrueWhenFallbackToNormalIsNeeded() {
-            Order order = createOrder(stocksOnePlusOne, 12);
-            Assertions.assertThat(order.hasFallbackToNormal()).isTrue();
-        }
-
-        @Test
-        @DisplayName("일반 재고가 필요하지 않은 경우 false를 반환한다")
-        void shouldReturnFalseWhenFallbackToNormalIsNotNeeded() {
-            Order order = createOrder(stocksOnePlusOne, 8);
-            Assertions.assertThat(order.hasFallbackToNormal()).isFalse();
-        }
-    }
-
-    @Nested
-    @DisplayName("getProductName 메서드 테스트")
-    class GetProductNameTests {
-        @Test
-        @DisplayName("상품 이름을 반환한다")
-        void shouldReturnProductName() {
-            Order order = createOrder(stocksOnePlusOne, 5);
-            Assertions.assertThat(order.getProductName()).isEqualTo("foo");
-        }
-    }
-
-    @Nested
-    @DisplayName("decreaseStocks 메서드 테스트")
-    class DecreaseStocksTests {
-        @Test
-        @DisplayName("프로모션 상품 재고를 먼저 감소시킨다")
-        void shouldDecreasePromotionStockFirst() {
-            Order order = createOrder(stocksOnePlusOne, 5);
-            order.decreaseStocks();
             SoftAssertions.assertSoftly(softly -> {
-                softly.assertThat(promoProductOnePlusOne.getQuantity()).isEqualTo(5); // 10 - 5
-                softly.assertThat(normalProduct.getQuantity()).isEqualTo(5); // 변경 없음
+                Assertions.assertThat(colaPromo.getQuantity()).isZero();
+                Assertions.assertThat(cola.getQuantity()).isEqualTo(6);
             });
-        }
-
-        @Test
-        @DisplayName("프로모션 상품 재고가 부족하면 일반 재고를 감소시킨다")
-        void shouldDecreaseNormalStockWhenPromotionStockIsInsufficient() {
-            Order order = createOrder(stocksOnePlusOne, 12);
-            order.decreaseStocks();
-            SoftAssertions.assertSoftly(softly -> {
-                softly.assertThat(promoProductOnePlusOne.getQuantity()).isEqualTo(0); // 10 - 10
-                softly.assertThat(normalProduct.getQuantity()).isEqualTo(3); // 5 - 2
-            });
-        }
-    }
-
-    @Nested
-    @DisplayName("프로모션 수량 계산 메서드 테스트")
-    class GetPromotedCountTests {
-        @Test
-        @DisplayName("주문 수량에 따른 프로모션 수량을 정확히 계산한다 (1+1 프로모션)")
-        void shouldReturnCorrectPromotedCountForOnePlusOne() {
-            Order order = createOrder(stocksOnePlusOne, 4);
-
-            int promotedCount = order.calculatePromotedCount();
-
-            Assertions.assertThat(promotedCount).isEqualTo(2);
-        }
-
-        @Test
-        @DisplayName("주문 수량이 재고를 초과하면 프로모션 수량은 최대 재고만큼만 제공된다")
-        void shouldLimitPromotedCountByStock() {
-            Order order = createOrder(stocksOnePlusOne, 20);
-
-            int promotedCount = order.calculatePromotedCount();
-
-            Assertions.assertThat(promotedCount).isEqualTo(5);
-        }
-
-        @Test
-        @DisplayName("프로모션이 없는 상품일 경우 0을 반환한다")
-        void shouldReturnZeroWhenNoPromotionExists() {
-            Order order = createOrder(List.of(normalProduct), 10);
-
-            int promotedCount = order.calculatePromotedCount();
-
-            Assertions.assertThat(promotedCount).isZero();
-        }
-
-        @Test
-        @DisplayName("주문 수량에 따른 프로모션 수량을 정확히 계산한다 (2+1 프로모션)")
-        void shouldReturnCorrectPromotedCountForTwoPlusOne() {
-            Order order = createOrder(stocksTwoPlusOne, 4);
-
-            int promotedCount = order.calculatePromotedCount();
-
-            Assertions.assertThat(promotedCount).isEqualTo(1);
-        }
-
-        @Test
-        @DisplayName("2+1 프로모션에서 주문 수량이 부족하면 무료 제공 수량은 0이다")
-        void shouldReturnZeroForInsufficientOrderQuantityInTwoPlusOne() {
-            Order order = createOrder(stocksTwoPlusOne, 1); // 주문 수량이 프로모션 조건 미달
-
-            int promotedCount = order.calculatePromotedCount();
-
-            Assertions.assertThat(promotedCount).isZero();
         }
     }
 }
