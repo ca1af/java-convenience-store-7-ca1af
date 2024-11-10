@@ -1,114 +1,61 @@
 package store.domain;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 public class Order {
-    private final List<Product> products;
-    private final LocalDateTime orderDate;
-    private int quantity;
+    private final List<OrderProduct> requestedOrderProducts;
 
-    public Order(List<Product> products, int quantity, LocalDateTime orderDate) {
-        this.orderDate = orderDate;
-        validateDifferentProducts(products);
-        this.products = products;
-        this.quantity = quantity;
+    public Order(List<OrderProduct> requestedOrderProducts) {
+        validate(requestedOrderProducts);
+        this.requestedOrderProducts = requestedOrderProducts;
     }
 
-    private static void validateDifferentProducts(List<Product> stocks) {
-        String productName = stocks.getFirst().getName();
-        boolean hasDifferentProducts = stocks.stream().anyMatch(product -> !product.getName().equals(productName));
-        if (hasDifferentProducts) {
-            throw new IllegalArgumentException(DomainErrorMessage.NOT_IDENTICAL.getMessage());
+    private void validate(List<OrderProduct> orderProducts) {
+        if (orderProducts.isEmpty()) {
+            throw new IllegalArgumentException(DomainErrorMessage.INVALID_INPUT.getMessage());
+        }
+
+        Optional<OrderProduct> unavailableOrder = orderProducts.stream().filter(each -> !each.hasEnoughStock()).findAny();
+        if (unavailableOrder.isPresent()) {
+            throw new IllegalArgumentException(DomainErrorMessage.QUANTITY_EXCEEDED.getMessage());
         }
     }
 
-    public void addQuantity() {
-        this.quantity++;
+    public List<OrderProduct> getRequestedOrders() {
+        return List.copyOf(requestedOrderProducts);
     }
 
-    public void subtract(int amount) {
-        this.quantity -= amount;
+    public List<OrderProduct> getUnclaimedFreeItemOrder() {
+        return requestedOrderProducts.stream().filter(OrderProduct::hasUnclaimedFreeItem).toList();
     }
 
-    public int countFallbackToNormal() {
-        int promotionStock = getPromotionStock();
-        return Math.max(quantity - promotionStock, 0);
-    }
-
-    public int calculateNormalProductPrice() {
-        Optional<Product> normalProduct = getNormalProduct();
-        return normalProduct.map(product -> product.getPrice() * getNormalProductQuantity()).orElse(0);
-    }
-
-    public int calculatePromotedCount() {
-        Optional<Product> promotionProduct = getPromotionProduct();
-        return promotionProduct.map(product -> product.getPromotedCount(quantity)).orElse(0);
-    }
-
-    public boolean hasUnclaimedFreeItem() {
-        return products.stream().anyMatch(product -> product.hasUnclaimedFreeItem(quantity, orderDate));
-    }
-
-    public boolean hasFallbackToNormal() {
-        if (getPromotionProduct().isEmpty()) {
-            return false;
-        }
-        return quantity > getPromotionStock();
-    }
-
-    public boolean hasEnoughStock() {
-        return getTotalAvailableQuantity() >= quantity;
-    }
-
-    public void decreaseStocks() {
-        int remainingQuantity = decreasePromotionAmount(quantity);
-        decreaseNormalAmount(remainingQuantity);
-    }
-
-    public int getProductPrice() {
-        return products.getFirst().getPrice();
-    }
-
-    public int getTotalAvailableQuantity() {
-        return products.stream().mapToInt(Product::getQuantity).sum();
-    }
-
-    public int getPromotionStock() {
-        return products.stream().filter(each -> each.promotionExists(orderDate)).mapToInt(Product::getQuantity).sum();
-    }
-
-    public String getProductName() {
-        return products.getFirst().getName();
+    public List<OrderProduct> getPromotedOrders() {
+        return requestedOrderProducts.stream().filter(each -> each.calculatePromotedCount() > 0).toList();
     }
 
     public int getTotalPrice() {
-        return getProductPrice() * quantity;
+        return requestedOrderProducts.stream().mapToInt(OrderProduct::getTotalPrice).sum();
     }
 
-    public int getQuantity() {
-        return quantity;
+    public int getPromotionDiscount() {
+        return getPromotedOrders().stream().mapToInt(order -> order.calculatePromotedCount() * order.getProductPrice())
+                .sum();
     }
 
-    private int decreasePromotionAmount(int quantity) {
-        Optional<Product> promotionProduct = getPromotionProduct();
-        return promotionProduct.map(product -> product.decrease(quantity)).orElse(quantity);
+    public int getTotalQuantity() {
+        return requestedOrderProducts.stream().mapToInt(OrderProduct::getQuantity).sum();
     }
 
-    private void decreaseNormalAmount(int remainingQuantity) {
-        getNormalProduct().ifPresent(product -> product.decrease(remainingQuantity));
+    public int getNormalProductPrice() {
+        return requestedOrderProducts.stream().mapToInt(OrderProduct::calculateNormalProductPrice).sum();
     }
 
-    private Optional<Product> getPromotionProduct() {
-        return products.stream().filter(each -> each.promotionExists(orderDate)).findFirst();
+    public List<OrderProduct> getFallBackToNormalOrders() {
+        return requestedOrderProducts.stream().filter(each -> each.countFallbackToNormal() > 0).toList();
     }
 
-    private Optional<Product> getNormalProduct() {
-        return products.stream().filter(product -> !product.promotionExists(orderDate)).findFirst();
-    }
-
-    private int getNormalProductQuantity() {
-        return Math.max(quantity - getPromotionStock(), 0);
+    public void decreaseAmount() {
+        requestedOrderProducts.forEach(OrderProduct::decreaseStocks);
     }
 }

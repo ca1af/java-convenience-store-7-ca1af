@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-class OrderParserTest {
+class OrderProductParserTest {
     private OrderParser orderParser;
 
     @BeforeEach

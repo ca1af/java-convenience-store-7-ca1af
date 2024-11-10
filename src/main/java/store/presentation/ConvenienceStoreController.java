@@ -4,8 +4,8 @@ import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDateTime;
 import java.util.List;
 import store.domain.MemberShip;
+import store.domain.OrderProduct;
 import store.domain.Order;
-import store.domain.Orders;
 import store.infra.FilerLoaderProductRepository;
 import store.presentation.view.InputView;
 import store.presentation.view.OutputView;
@@ -43,56 +43,56 @@ public class ConvenienceStoreController {
 
     public void handleOrder(MemberShip membership, LocalDateTime currentOrderDate) {
         printStart();
-        Orders orders = RetryHandler.retry(() -> retrieveOrdersFromInput(currentOrderDate));
-        processOrderDetails(orders);
-        ReceiptFormatter receiptFormatter = finalizePurchase(orders, membership, isMembershipDiscountApplicable());
+        Order order = RetryHandler.retry(() -> retrieveOrdersFromInput(currentOrderDate));
+        processOrderDetails(order);
+        ReceiptFormatter receiptFormatter = finalizePurchase(order, membership, isMembershipDiscountApplicable());
         outputView.printReceipt(receiptFormatter.format());
-        orders.decreaseAmount();
+        order.decreaseAmount();
     }
 
-    private ReceiptFormatter finalizePurchase(Orders orders, MemberShip memberShip, boolean memberShipApplicable) {
+    private ReceiptFormatter finalizePurchase(Order order, MemberShip memberShip, boolean memberShipApplicable) {
         if (memberShipApplicable) {
-            int discount = memberShip.applyDiscount(orders);
-            return new ReceiptFormatter(orders, discount);
+            int discount = memberShip.applyDiscount(order);
+            return new ReceiptFormatter(order, discount);
         }
 
-        return new ReceiptFormatter(orders, 0);
+        return new ReceiptFormatter(order, 0);
     }
 
-    private Orders retrieveOrdersFromInput(LocalDateTime currentOrderDate) {
+    private Order retrieveOrdersFromInput(LocalDateTime currentOrderDate) {
         String userOrderInput = inputView.getOrders();
         List<UserOrder> parsedUserOrders = orderParser.parseInput(userOrderInput);
         return convertToDomainOrders(parsedUserOrders, currentOrderDate);
     }
 
-    private Orders convertToDomainOrders(List<UserOrder> parsedUserOrders, LocalDateTime orderDate) {
-        List<Order> domainOrders = parsedUserOrders.stream()
+    private Order convertToDomainOrders(List<UserOrder> parsedUserOrders, LocalDateTime orderDate) {
+        List<OrderProduct> domainOrderProducts = parsedUserOrders.stream()
                 .map(each -> each.toDomain(filerLoaderProductRepository.findAllByName(each.productName()), orderDate))
                 .toList();
-        return new Orders(domainOrders);
+        return new Order(domainOrderProducts);
     }
 
-    private void processOrderDetails(Orders orders) {
-        orders.getUnclaimedFreeItemOrder().forEach(this::handleUnclaimedFreeItems);
-        orders.getFallBackToNormalOrders().forEach(this::handleFallbackItems);
+    private void processOrderDetails(Order order) {
+        order.getUnclaimedFreeItemOrder().forEach(this::handleUnclaimedFreeItems);
+        order.getFallBackToNormalOrders().forEach(this::handleFallbackItems);
     }
 
-    private void handleFallbackItems(Order order) {
-        if (!order.hasFallbackToNormal()) {
+    private void handleFallbackItems(OrderProduct orderProduct) {
+        if (!orderProduct.hasFallbackToNormal()) {
             return;
         }
 
-        int fallbackItemCount = order.countFallbackToNormal();
-        String fallbackPurchaseDecision = inputView.askToPurchaseNormalItems(order.getProductName(), fallbackItemCount);
+        int fallbackItemCount = orderProduct.countFallbackToNormal();
+        String fallbackPurchaseDecision = inputView.askToPurchaseNormalItems(orderProduct.getProductName(), fallbackItemCount);
         if (fallbackPurchaseDecision.equalsIgnoreCase("N")) {
-            order.subtract(fallbackItemCount);
+            orderProduct.subtract(fallbackItemCount);
         }
     }
 
-    private void handleUnclaimedFreeItems(Order order) {
-        String freeItemDecision = inputView.getUnclaimedFreeItemWanted(order.getProductName());
+    private void handleUnclaimedFreeItems(OrderProduct orderProduct) {
+        String freeItemDecision = inputView.getUnclaimedFreeItemWanted(orderProduct.getProductName());
         if (freeItemDecision.equalsIgnoreCase("Y")) {
-            order.addQuantity();
+            orderProduct.addQuantity();
         }
     }
 

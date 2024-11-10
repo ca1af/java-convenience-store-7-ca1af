@@ -7,8 +7,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import store.domain.OrderProduct;
 import store.domain.Order;
-import store.domain.Orders;
 import store.domain.Product;
 import store.domain.Promotion;
 
@@ -27,13 +27,13 @@ class ReceiptFormatterTest {
                 new Promotion("2+1", 2, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1)));
         Product energyBar = new Product("에너지바", 2000, 5, null);
 
-        Order order1 = new Order(List.of(cola), 6, orderDate); // 6개 구매 -> 2+1 프로모션 -> 증정 2개
-        Order order2 = new Order(List.of(energyBar), 5, orderDate); // 5개 구매, 프로모션 없음
+        OrderProduct orderProduct1 = new OrderProduct(List.of(cola), 6, orderDate); // 6개 구매 -> 2+1 프로모션 -> 증정 2개
+        OrderProduct orderProduct2 = new OrderProduct(List.of(energyBar), 5, orderDate); // 5개 구매, 프로모션 없음
 
-        Orders orders = new Orders(List.of(order1, order2));
+        Order order = new Order(List.of(orderProduct1, orderProduct2));
         int memberShipDiscount = 3000;
 
-        ReceiptFormatter printer = new ReceiptFormatter(orders, memberShipDiscount);
+        ReceiptFormatter printer = new ReceiptFormatter(order, memberShipDiscount);
 
         String receipt = printer.format();
 
@@ -59,13 +59,13 @@ class ReceiptFormatterTest {
         Product water = new Product("물", 500, 10, null);
         Product snack = new Product("스낵", 1500, 5, null);
 
-        Order order1 = new Order(List.of(water), 3, orderDate); // 3개 구매
-        Order order2 = new Order(List.of(snack), 4, orderDate); // 4개 구매
+        OrderProduct orderProduct1 = new OrderProduct(List.of(water), 3, orderDate); // 3개 구매
+        OrderProduct orderProduct2 = new OrderProduct(List.of(snack), 4, orderDate); // 4개 구매
 
-        Orders orders = new Orders(List.of(order1, order2));
+        Order order = new Order(List.of(orderProduct1, orderProduct2));
         int memberShipDiscount = 2000;
 
-        ReceiptFormatter printer = new ReceiptFormatter(orders, memberShipDiscount);
+        ReceiptFormatter printer = new ReceiptFormatter(order, memberShipDiscount);
 
         String receipt = printer.format();
 
@@ -90,12 +90,12 @@ class ReceiptFormatterTest {
         Product juice = new Product("주스", 2000, 10,
                 new Promotion("1+1", 1, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1)));
 
-        Order order = new Order(List.of(juice), 8, orderDate); // 8개 구매 -> 1+1 프로모션 -> 증정 4개
+        OrderProduct orderProduct = new OrderProduct(List.of(juice), 8, orderDate); // 8개 구매 -> 1+1 프로모션 -> 증정 4개
 
-        Orders orders = new Orders(List.of(order));
+        Order order = new Order(List.of(orderProduct));
         int memberShipDiscount = 0;
 
-        ReceiptFormatter printer = new ReceiptFormatter(orders, memberShipDiscount);
+        ReceiptFormatter printer = new ReceiptFormatter(order, memberShipDiscount);
 
         String receipt = printer.format();
 

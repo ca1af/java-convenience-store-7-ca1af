@@ -1,23 +1,23 @@
 package store.presentation;
 
 import java.util.List;
+import store.domain.OrderProduct;
 import store.domain.Order;
-import store.domain.Orders;
 
 public record Receipt(String name, int quantity, int totalPrice) {
-    public static Receipt of(Order order) {
-        return new Receipt(order.getProductName(), order.getQuantity(), order.getTotalPrice());
+    public static Receipt of(OrderProduct orderProduct) {
+        return new Receipt(orderProduct.getProductName(), orderProduct.getQuantity(), orderProduct.getTotalPrice());
     }
 
-    public static Receipt ofPromotion(Order order) {
-        return new Receipt(order.getProductName(), order.calculatePromotedCount(), 0);
+    public static Receipt ofPromotion(OrderProduct orderProduct) {
+        return new Receipt(orderProduct.getProductName(), orderProduct.calculatePromotedCount(), 0);
     }
 
-    public static List<Receipt> ofList(Orders orders) {
-        return orders.getRequestedOrders().stream().map(Receipt::of).toList();
+    public static List<Receipt> ofList(Order order) {
+        return order.getRequestedOrders().stream().map(Receipt::of).toList();
     }
 
-    public static List<Receipt> ofPromotedOrders(Orders orders) {
+    public static List<Receipt> ofPromotedOrders(Order orders) {
         return orders.getPromotedOrders().stream().filter(order -> order.calculatePromotedCount() > 0)
                 .map(Receipt::ofPromotion).toList();
     }
