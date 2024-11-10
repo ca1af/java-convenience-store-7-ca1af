@@ -20,9 +20,7 @@ public class Orders {
     }
 
     public List<Order> getPromotedOrders() {
-        return requestedOrders.stream()
-                .filter(each -> each.getPromotedCount() > 0)
-                .toList();
+        return requestedOrders.stream().filter(each -> each.getPromotedCount() > 0).toList();
     }
 
     public int getTotalPrice() {
@@ -30,9 +28,7 @@ public class Orders {
     }
 
     public int getPromotionDiscount() {
-        return getPromotedOrders().stream()
-                .mapToInt(order -> order.getPromotedCount() * order.getProductPrice())
-                .sum();
+        return getPromotedOrders().stream().mapToInt(order -> order.getPromotedCount() * order.getProductPrice()).sum();
     }
 
     public int getTotalQuantity() {
@@ -55,9 +51,7 @@ public class Orders {
     }
 
     public List<Order> getFallBackToNormalOrders() {
-        return requestedOrders.stream()
-                .filter(each -> each.countFallbackToNormal() > 0)
-                .toList();
+        return requestedOrders.stream().filter(each -> each.countFallbackToNormal() > 0).toList();
     }
 
     public void decreaseAmount() {
