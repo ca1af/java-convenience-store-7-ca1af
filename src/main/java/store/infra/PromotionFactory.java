@@ -3,9 +3,11 @@ package store.infra;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import store.domain.Promotion;
 
 public class PromotionFactory {
+    private static final String NULL_PROMOTION_NAME = "null";
     private final Map<String, Promotion> promotions = new HashMap<>();
 
     public PromotionFactory(List<Promotion> loadedPromotions) {
@@ -13,7 +15,7 @@ public class PromotionFactory {
     }
 
     public Promotion getPromotion(String promotionName) {
-        if ("null".equals(promotionName)) {
+        if (Objects.equals(NULL_PROMOTION_NAME, promotionName)) {
             return null;
         }
         if (!promotions.containsKey(promotionName)) {
