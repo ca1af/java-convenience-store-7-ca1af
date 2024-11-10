@@ -16,7 +16,7 @@ public class Orders {
             throw new IllegalArgumentException(DomainErrorMessage.INVALID_INPUT.getMessage());
         }
 
-        Optional<Order> unavailableOrder = orders.stream().filter(each -> !each.available()).findAny();
+        Optional<Order> unavailableOrder = orders.stream().filter(each -> !each.hasEnoughStock()).findAny();
         if (unavailableOrder.isPresent()) {
             throw new IllegalArgumentException(DomainErrorMessage.QUANTITY_EXCEEDED.getMessage());
         }
@@ -31,7 +31,7 @@ public class Orders {
     }
 
     public List<Order> getPromotedOrders() {
-        return requestedOrders.stream().filter(each -> each.getPromotedCount() > 0).toList();
+        return requestedOrders.stream().filter(each -> each.calculatePromotedCount() > 0).toList();
     }
 
     public int getTotalPrice() {
@@ -39,7 +39,7 @@ public class Orders {
     }
 
     public int getPromotionDiscount() {
-        return getPromotedOrders().stream().mapToInt(order -> order.getPromotedCount() * order.getProductPrice()).sum();
+        return getPromotedOrders().stream().mapToInt(order -> order.calculatePromotedCount() * order.getProductPrice()).sum();
     }
 
     public int getTotalQuantity() {
@@ -47,7 +47,7 @@ public class Orders {
     }
 
     public int getNormalProductPrice() {
-        return requestedOrders.stream().mapToInt(Order::getNormalProductPrice).sum();
+        return requestedOrders.stream().mapToInt(Order::calculateNormalProductPrice).sum();
     }
 
     public List<Order> getFallBackToNormalOrders() {

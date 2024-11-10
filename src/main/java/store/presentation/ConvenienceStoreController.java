@@ -84,7 +84,7 @@ public class ConvenienceStoreController {
         int fallbackItemCount = order.countFallbackToNormal();
         String fallbackPurchaseDecision = inputView.askToPurchaseNormalItems(order.getProductName(), fallbackItemCount);
         if (fallbackPurchaseDecision.equalsIgnoreCase("N")) {
-            order.decreaseQuantity(fallbackItemCount);
+            order.subtract(fallbackItemCount);
         }
     }
 

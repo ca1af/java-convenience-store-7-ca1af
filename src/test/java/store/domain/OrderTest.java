@@ -35,9 +35,9 @@ class OrderTest {
 
     @Test
     @DisplayName("수량을 감소시킨다")
-    void shouldDecreaseQuantity() {
+    void shouldSubtract() {
         Order order = createOrder(stocksOnePlusOne, 5);
-        order.decreaseQuantity(2);
+        order.subtract(2);
         Assertions.assertThat(order.countFallbackToNormal()).isZero();
     }
 
@@ -149,7 +149,7 @@ class OrderTest {
         void shouldReturnCorrectPromotedCountForOnePlusOne() {
             Order order = createOrder(stocksOnePlusOne, 4);
 
-            int promotedCount = order.getPromotedCount();
+            int promotedCount = order.calculatePromotedCount();
 
             Assertions.assertThat(promotedCount).isEqualTo(2);
         }
@@ -159,7 +159,7 @@ class OrderTest {
         void shouldLimitPromotedCountByStock() {
             Order order = createOrder(stocksOnePlusOne, 20);
 
-            int promotedCount = order.getPromotedCount();
+            int promotedCount = order.calculatePromotedCount();
 
             Assertions.assertThat(promotedCount).isEqualTo(5);
         }
@@ -169,7 +169,7 @@ class OrderTest {
         void shouldReturnZeroWhenNoPromotionExists() {
             Order order = createOrder(List.of(normalProduct), 10);
 
-            int promotedCount = order.getPromotedCount();
+            int promotedCount = order.calculatePromotedCount();
 
             Assertions.assertThat(promotedCount).isZero();
         }
@@ -179,7 +179,7 @@ class OrderTest {
         void shouldReturnCorrectPromotedCountForTwoPlusOne() {
             Order order = createOrder(stocksTwoPlusOne, 4);
 
-            int promotedCount = order.getPromotedCount();
+            int promotedCount = order.calculatePromotedCount();
 
             Assertions.assertThat(promotedCount).isEqualTo(1);
         }
@@ -189,7 +189,7 @@ class OrderTest {
         void shouldReturnZeroForInsufficientOrderQuantityInTwoPlusOne() {
             Order order = createOrder(stocksTwoPlusOne, 1); // 주문 수량이 프로모션 조건 미달
 
-            int promotedCount = order.getPromotedCount();
+            int promotedCount = order.calculatePromotedCount();
 
             Assertions.assertThat(promotedCount).isZero();
         }

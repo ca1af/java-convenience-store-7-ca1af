@@ -5,14 +5,14 @@ import java.util.List;
 import java.util.Optional;
 
 public class Order {
-    private final List<Product> stocks;
+    private final List<Product> products;
     private final LocalDateTime orderDate;
     private int quantity;
 
-    public Order(List<Product> stocks, int quantity, LocalDateTime orderDate) {
+    public Order(List<Product> products, int quantity, LocalDateTime orderDate) {
         this.orderDate = orderDate;
-        validateDifferentProducts(stocks);
-        this.stocks = stocks;
+        validateDifferentProducts(products);
+        this.products = products;
         this.quantity = quantity;
     }
 
@@ -24,16 +24,12 @@ public class Order {
         }
     }
 
-    public int getProductPrice() {
-        return stocks.getFirst().getPrice();
-    }
-
     public void addQuantity() {
         this.quantity++;
     }
 
-    public void decreaseQuantity(int decreaseAmount) {
-        this.quantity -= decreaseAmount;
+    public void subtract(int amount) {
+        this.quantity -= amount;
     }
 
     public int countFallbackToNormal() {
@@ -41,18 +37,18 @@ public class Order {
         return Math.max(quantity - promotionStock, 0);
     }
 
-    public int getNormalProductPrice() {
+    public int calculateNormalProductPrice() {
         Optional<Product> normalProduct = getNormalProduct();
         return normalProduct.map(product -> product.getPrice() * getNormalProductQuantity()).orElse(0);
     }
 
-    public int getPromotedCount() {
+    public int calculatePromotedCount() {
         Optional<Product> promotionProduct = getPromotionProduct();
         return promotionProduct.map(product -> product.getPromotedCount(quantity)).orElse(0);
     }
 
     public boolean hasUnclaimedFreeItem() {
-        return stocks.stream().anyMatch(product -> product.hasUnclaimedFreeItem(quantity, orderDate));
+        return products.stream().anyMatch(product -> product.hasUnclaimedFreeItem(quantity, orderDate));
     }
 
     public boolean hasFallbackToNormal() {
@@ -62,25 +58,29 @@ public class Order {
         return quantity > getPromotionStock();
     }
 
-    public boolean available() {
-        return getMaxCount() >= quantity;
-    }
-
-    public int getMaxCount() {
-        return stocks.stream().mapToInt(Product::getQuantity).sum();
-    }
-
-    public int getPromotionStock() {
-        return stocks.stream().filter(each -> each.promotionExists(orderDate)).mapToInt(Product::getQuantity).sum();
-    }
-
-    public String getProductName() {
-        return stocks.getFirst().getName();
+    public boolean hasEnoughStock() {
+        return getTotalAvailableQuantity() >= quantity;
     }
 
     public void decreaseStocks() {
         int remainingQuantity = decreasePromotionAmount(quantity);
         decreaseNormalAmount(remainingQuantity);
+    }
+
+    public int getProductPrice() {
+        return products.getFirst().getPrice();
+    }
+
+    public int getTotalAvailableQuantity() {
+        return products.stream().mapToInt(Product::getQuantity).sum();
+    }
+
+    public int getPromotionStock() {
+        return products.stream().filter(each -> each.promotionExists(orderDate)).mapToInt(Product::getQuantity).sum();
+    }
+
+    public String getProductName() {
+        return products.getFirst().getName();
     }
 
     public int getTotalPrice() {
@@ -101,11 +101,11 @@ public class Order {
     }
 
     private Optional<Product> getPromotionProduct() {
-        return stocks.stream().filter(each -> each.promotionExists(orderDate)).findFirst();
+        return products.stream().filter(each -> each.promotionExists(orderDate)).findFirst();
     }
 
     private Optional<Product> getNormalProduct() {
-        return stocks.stream().filter(product -> !product.promotionExists(orderDate)).findFirst();
+        return products.stream().filter(product -> !product.promotionExists(orderDate)).findFirst();
     }
 
     private int getNormalProductQuantity() {

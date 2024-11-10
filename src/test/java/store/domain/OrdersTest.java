@@ -145,7 +145,7 @@ class OrdersTest {
 
     @Test
     @DisplayName("일반 상품의 총 가격을 정확히 반환한다")
-    void getNormalProductPrice_ShouldReturnCorrectSum() {
+    void calculateNormalProductPrice_ShouldReturnCorrectSum() {
         Order order1 = new Order(onePromoOneNormalCola, 5, orderDate); // 프로모션이 존재, 따라서 0
         Order order2 = new Order(normarSodaStock, 4, orderDate); // 4 * 1200
         Orders orders = new Orders(List.of(order1, order2));
