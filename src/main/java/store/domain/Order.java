@@ -87,7 +87,7 @@ public class Order {
 
     public void decreaseStocks() {
         int remainingQuantity = decreasePromotionAmount(quantity);
-        getNormalProduct().ifPresent(product -> product.decrease(remainingQuantity));
+        decreaseNormalAmount(remainingQuantity);
     }
 
     public int getTotalPrice() {
@@ -101,6 +101,10 @@ public class Order {
     private int decreasePromotionAmount(int quantity) {
         Optional<Product> promotionProduct = getPromotionProduct();
         return promotionProduct.map(product -> product.decrease(quantity)).orElse(quantity);
+    }
+
+    private void decreaseNormalAmount(int remainingQuantity){
+        getNormalProduct().ifPresent(product -> product.decrease(remainingQuantity));
     }
 
     private Optional<Product> getPromotionProduct() {
