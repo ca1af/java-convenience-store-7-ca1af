@@ -26,23 +26,6 @@ public class FilerLoaderProductRepository {
                 .toList();
     }
 
-    public boolean hasProduct(String productName) {
-        return stocks.stream().anyMatch(each -> findProductByName(productName, each));
-    }
-
-    public boolean hasQuantity(String productName, int quantity) {
-        List<Product> products = stocks.stream().filter(each -> each.getName().equals(productName)).toList();
-        int availableQuantity = products.stream()
-                .mapToInt(Product::getQuantity)
-                .sum();
-
-        return availableQuantity >= quantity;
-    }
-
-    public boolean exists(String productName) {
-        return stocks.stream().anyMatch(each -> each.getName().equals(productName));
-    }
-
     @Override
     public String toString() {
         return stocks.stream()
