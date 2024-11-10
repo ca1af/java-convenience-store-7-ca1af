@@ -64,28 +64,41 @@ class OrderTest {
         }
     }
 
-    @Nested
-    @DisplayName("addQuantity 메서드 테스트")
-    class AddQuantityTests {
-        @Test
-        @DisplayName("수량을 1 증가시킨다")
-        void shouldIncreaseQuantityByOne() {
-            Order order = createOrder(stocksOnePlusOne, 5);
-            order.addQuantity();
-            Assertions.assertThat(order.countFallbackToNormal()).isZero(); // 프로모션 재고 충분
-            Assertions.assertThat(order.hasFallbackToNormal()).isFalse();
-        }
+    @Test
+    @DisplayName("수량을 1 증가시킨다")
+    void shouldIncreaseQuantityByOne() {
+        Order order = createOrder(stocksOnePlusOne, 5);
+        order.addQuantity();
+        Assertions.assertThat(order.countFallbackToNormal()).isZero(); // 프로모션 재고 충분
+        Assertions.assertThat(order.hasFallbackToNormal()).isFalse();
+    }
+
+    @Test
+    @DisplayName("수량을 감소시킨다")
+    void shouldDecreaseQuantity() {
+        Order order = createOrder(stocksOnePlusOne, 5);
+        order.decreaseQuantity(2);
+        Assertions.assertThat(order.countFallbackToNormal()).isZero();
     }
 
     @Nested
-    @DisplayName("decreaseQuantity 메서드 테스트")
-    class DecreaseQuantityTests {
+    @DisplayName("hasFallbackToNormal 메서드 테스트")
+    class HasFallbackToNormal {
         @Test
-        @DisplayName("수량을 감소시킨다")
-        void shouldDecreaseQuantity() {
-            Order order = createOrder(stocksOnePlusOne, 5);
-            order.decreaseQuantity(2);
-            Assertions.assertThat(order.countFallbackToNormal()).isZero(); // 프로모션 재고 충분
+        @DisplayName("프로모션이 없는 상품은 false 를 반환한다.")
+        void promotionIsEmpty() {
+            Order order = new Order(List.of(normalProduct), 10, DateTimes.now());
+            boolean expected = order.hasFallbackToNormal();
+            Assertions.assertThat(expected).isFalse();
+        }
+
+        @Test
+        @DisplayName("프로모션이 존재하며 상품 재고가 없으면 true 를 반환한다.")
+        void promotionOutOfStock() {
+            Product outOfStock = new Product("outOfStock", 1000, 0, onePlusOne);
+            Order order = new Order(List.of(outOfStock), 10, DateTimes.now());
+            boolean expected = order.hasFallbackToNormal();
+            Assertions.assertThat(expected).isTrue();
         }
     }
 

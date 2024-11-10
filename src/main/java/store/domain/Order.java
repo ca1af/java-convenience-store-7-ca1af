@@ -63,6 +63,9 @@ public class Order {
     }
 
     public boolean hasFallbackToNormal() {
+        if (getPromotionProduct().isEmpty()) {
+            return false;
+        }
         return quantity > getPromotionStock();
     }
 
