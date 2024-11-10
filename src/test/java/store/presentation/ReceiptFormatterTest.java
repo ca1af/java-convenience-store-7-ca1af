@@ -1,13 +1,12 @@
 package store.presentation;
 
 import camp.nextstep.edu.missionutils.DateTimes;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDateTime;
-import java.util.List;
 import store.domain.Order;
 import store.domain.Orders;
 import store.domain.Product;
@@ -24,8 +23,8 @@ class ReceiptFormatterTest {
     @Test
     @DisplayName("영수증 출력 테스트 - 정상 출력")
     void formatReceiptSuccessfully() {
-        // given
-        Product cola = new Product("콜라", 1000, 10, new Promotion("2+1", 2, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1)));
+        Product cola = new Product("콜라", 1000, 10,
+                new Promotion("2+1", 2, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1)));
         Product energyBar = new Product("에너지바", 2000, 5, null);
 
         Order order1 = new Order(List.of(cola), 6, orderDate); // 6개 구매 -> 2+1 프로모션 -> 증정 2개
@@ -36,10 +35,8 @@ class ReceiptFormatterTest {
 
         ReceiptFormatter printer = new ReceiptFormatter(orders, memberShipDiscount);
 
-        // when
         String receipt = printer.format();
 
-        // then
         String expectedReceipt = """
                 ==============W 편의점================
                 콜라      	 6	  6,000
@@ -58,7 +55,7 @@ class ReceiptFormatterTest {
     @Test
     @DisplayName("영수증 출력 테스트 - 프로모션 없는 경우")
     void formatReceiptWithoutPromotion() {
-        // given
+
         Product water = new Product("물", 500, 10, null);
         Product snack = new Product("스낵", 1500, 5, null);
 
@@ -70,10 +67,8 @@ class ReceiptFormatterTest {
 
         ReceiptFormatter printer = new ReceiptFormatter(orders, memberShipDiscount);
 
-        // when
         String receipt = printer.format();
 
-        // then
         String expectedReceipt = """
                 ==============W 편의점================
                 물      	 3	  1,500
@@ -91,8 +86,9 @@ class ReceiptFormatterTest {
     @Test
     @DisplayName("영수증 출력 테스트 - 멤버십 할인 없는 경우")
     void formatReceiptWithoutMemberShipDiscount() {
-        // given
-        Product juice = new Product("주스", 2000, 10, new Promotion("1+1", 1, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1)));
+
+        Product juice = new Product("주스", 2000, 10,
+                new Promotion("1+1", 1, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1)));
 
         Order order = new Order(List.of(juice), 8, orderDate); // 8개 구매 -> 1+1 프로모션 -> 증정 4개
 
@@ -101,10 +97,8 @@ class ReceiptFormatterTest {
 
         ReceiptFormatter printer = new ReceiptFormatter(orders, memberShipDiscount);
 
-        // when
         String receipt = printer.format();
 
-        // then
         String expectedReceipt = """
                 ==============W 편의점================
                 주스      	 8	 16,000

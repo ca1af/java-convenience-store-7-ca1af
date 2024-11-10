@@ -27,15 +27,12 @@ class PromotionTest {
             "3+1, 3, 1, 14, false"
     })
     void testHasUnclaimedFreeItem(String name, int buy, int get, int quantity, boolean expected) {
-        // given
         LocalDate today = LocalDate.now();
         Promotion promotion = new Promotion(name, buy, get, today.minusDays(1).atStartOfDay(),
                 today.plusDays(1).atStartOfDay());
 
-        // when
         boolean result = promotion.hasUnclaimedFreeItem(quantity);
 
-        // then
         Assertions.assertThat(result).isEqualTo(expected);
     }
 

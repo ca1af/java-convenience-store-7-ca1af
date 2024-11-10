@@ -16,6 +16,7 @@ import store.infra.InfraErrorMessage;
 class FileLoaderTest {
     private static final String VALID_FILE_PATH = "src/test/resources/test_data.md";
     private static final String INVALID_FILE_PATH = "src/test/resources/nonexistent.md";
+    private static StubFileLoader fileLoader;
 
     static class StubFileLoader extends FileLoader<String> {
 
@@ -30,8 +31,6 @@ class FileLoaderTest {
             return parseLines(lines);
         }
     }
-
-    private static StubFileLoader fileLoader;
 
     @BeforeAll
     static void setUp() {
@@ -67,6 +66,7 @@ class FileLoaderTest {
     })
     void shouldParseIntegerSuccessfully(String input, int expected) {
         int result = fileLoader.parseInteger(input);
+
         Assertions.assertThat(result).isEqualTo(expected);
     }
 
@@ -87,6 +87,7 @@ class FileLoaderTest {
     })
     void shouldParseDateSuccessfully(String input, String expectedDate) {
         LocalDateTime date = fileLoader.parseDate(input);
+
         Assertions.assertThat(date).isEqualTo(LocalDate.parse(expectedDate).atStartOfDay());
     }
 
@@ -104,6 +105,7 @@ class FileLoaderTest {
     @CsvSource(delimiter = ':', value = {"data1,data2,data3 : 3", "data1,data2 : 2"})
     void shouldValidateFieldCountCorrectly(String line, int expectedCount) {
         String[] fields = fileLoader.getDeclaredFields(line, expectedCount);
+
         Assertions.assertThat(fields).hasSize(expectedCount);
     }
 

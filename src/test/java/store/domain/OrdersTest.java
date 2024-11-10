@@ -9,142 +9,204 @@ import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class OrdersTest {
-
-    private List<Product> colaStocks;
-    private List<Product> sodaStocks;
-    private List<Product> promotionStocks;
+    private List<Product> onePromoOneNormalCola;
+    private List<Product> normarSodaStock;
+    private List<Product> promotionPotatoChipStock;
     private LocalDateTime orderDate;
+    private Product cola;
+    private Product colaPromo;
 
     @BeforeEach
     void setUp() {
-        Product cola = new Product("콜라", 1000, 10, null);
+        cola = new Product("콜라", 1000, 10, null);
         Product soda = new Product("사이다", 1200, 8, null);
-        Promotion promotion = new Promotion("1+1", 1, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1));
-        Product colaPromo = new Product("콜라", 1000, 10, promotion);
+        Promotion promotion = new Promotion("1+1", 1, 1, LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(1));
+        colaPromo = new Product("콜라", 1000, 10, promotion);
         Product promotionProduct = new Product("감자칩", 1500, 5, promotion);
-
-        colaStocks = List.of(cola, colaPromo);
-        sodaStocks = List.of(soda);
-        promotionStocks = List.of(promotionProduct);
         orderDate = DateTimes.now();
+        setupProductLists(soda, promotionProduct);
+    }
+
+    private void setupProductLists(Product soda, Product promotionProduct) {
+        onePromoOneNormalCola = List.of(cola, colaPromo);
+        normarSodaStock = List.of(soda);
+        promotionPotatoChipStock = List.of(promotionProduct);
+    }
+
+    @Test
+    @DisplayName("getRequestedOrders 로 불변 리스트를 리턴받는다.")
+    void getRequestedOrders() {
+        Order order1 = new Order(onePromoOneNormalCola, 4, orderDate);
+        Orders orders = new Orders(List.of(order1));
+
+        List<Order> requestedOrders = orders.getRequestedOrders();
+
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(requestedOrders).containsExactly(order1);
+            softly.assertThatThrownBy(requestedOrders::removeFirst).isInstanceOf(UnsupportedOperationException.class);
+        });
+    }
+
+    @Test
+    @DisplayName("requestedOrders 메서드는 프로모션이 적용된 상품만 반환한다.")
+    void getPromotedOrders() {
+        Order order1 = new Order(normarSodaStock, 4, orderDate);
+        Order order2 = new Order(promotionPotatoChipStock, 3, orderDate);
+        Orders orders = new Orders(List.of(order1, order2));
+
+        List<Order> requestedOrders = orders.getPromotedOrders();
+
+        Assertions.assertThat(requestedOrders).containsExactly(order2);
+    }
+
+    @Test
+    @DisplayName("getPromotionDiscount 메서드는 프로모션이 적용 금액을 계산한다")
+    void getPromotionDiscount() {
+        Order order1 = new Order(normarSodaStock, 4, orderDate);
+        Order order2 = new Order(promotionPotatoChipStock, 3, orderDate);
+        Orders orders = new Orders(List.of(order1, order2));
+
+        int promotionDiscount = orders.getPromotionDiscount();
+
+        Assertions.assertThat(promotionDiscount).isEqualTo(1500);
+    }
+
+    @Test
+    @DisplayName("getTotalQuantity 메서드는 총 주문 수량을 계산한다")
+    void getTotalQuantity() {
+        Order order1 = new Order(normarSodaStock, 4, orderDate);
+        Order order2 = new Order(promotionPotatoChipStock, 3, orderDate);
+        Orders orders = new Orders(List.of(order1, order2));
+
+        int promotionDiscount = orders.getTotalQuantity();
+
+        Assertions.assertThat(promotionDiscount).isEqualTo(7);
     }
 
     @Test
     @DisplayName("상품의 총합 가격을 반환한다.")
     void getTotalPrice() {
-        Order order1 = new Order(colaStocks, 4, orderDate);
-        Order order2 = new Order(promotionStocks, 3, orderDate);
+        Order order1 = new Order(onePromoOneNormalCola, 4, orderDate);
+        Order order2 = new Order(promotionPotatoChipStock, 3, orderDate);
 
         Orders orders = new Orders(List.of(order1, order2));
 
-        // when
         int totalAmount = orders.getTotalPrice();
 
-        // then
         Assertions.assertThat(totalAmount).isEqualTo(8500);
     }
 
-    @DisplayName("무료 증정품이 존재하는 주문만 반환한다")
     @Test
+    @DisplayName("무료 증정품이 존재하는 주문만 반환한다")
     void getRemaining_ShouldReturnFreeRemainingOrders() {
-        // given
-        Order order1 = new Order(colaStocks, 4, orderDate);
-        Order order2 = new Order(promotionStocks, 3, orderDate);
+        Order order1 = new Order(onePromoOneNormalCola, 4, orderDate);
+        Order order2 = new Order(promotionPotatoChipStock, 3, orderDate);
 
         Orders orders = new Orders(List.of(order1, order2));
 
-        // when
         List<Order> remainingOrders = orders.getUnclaimedFreeItemOrder();
 
-        // then
         Assertions.assertThat(remainingOrders).containsExactly(order2);
     }
 
-    @DisplayName("모든 주문이 충족 가능한 경우 validate가 예외를 발생시키지 않는다")
     @Test
+    @DisplayName("모든 주문이 충족 가능한 경우 validate가 예외를 발생시키지 않는다")
     void validate_ShouldNotThrowWhenAllOrdersAreValid() {
-        // given
-        Order order1 = new Order(colaStocks, 5, orderDate);
-        Order order2 = new Order(promotionStocks, 4, orderDate);
+        Order order1 = new Order(onePromoOneNormalCola, 5, orderDate);
+        Order order2 = new Order(promotionPotatoChipStock, 4, orderDate);
 
-        // when / then
         Assertions.assertThatCode(() -> new Orders(List.of(order1, order2))).doesNotThrowAnyException();
     }
 
-    @DisplayName("주문 수량이 재고를 초과할 경우 validate가 예외를 발생시킨다")
     @Test
+    @DisplayName("주문 수량이 재고를 초과할 경우 validate가 예외를 발생시킨다")
     void validate_ShouldThrowWhenOrderExceedsStock() {
-        // given
-        Order order1 = new Order(colaStocks, 15, orderDate); // 재고 초과
-        Order order2 = new Order(sodaStocks, 10, orderDate); // 재고 초과
+        Order order1 = new Order(onePromoOneNormalCola, 15, orderDate); // 재고 초과
+        Order order2 = new Order(normarSodaStock, 10, orderDate); // 재고 초과
 
         List<Order> orderItems = List.of(order1, order2);
-        // when / then
-        assertThatThrownBy(() -> new Orders(orderItems))
-                .isInstanceOf(IllegalArgumentException.class)
+        assertThatThrownBy(() -> new Orders(orderItems)).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(DomainErrorMessage.QUANTITY_EXCEEDED.getMessage());
     }
 
-    @DisplayName("빈 주문 리스트가 들어오면 예외가 발생한다")
     @Test
+    @DisplayName("빈 주문 리스트가 들어오면 예외가 발생한다")
     void validate_ShouldThrowWhenOrdersAreEmpty() {
-        // given
         List<Order> emptyOrders = List.of();
-        
-        // when / then
-        assertThatThrownBy(() -> new Orders(emptyOrders))
-                .isInstanceOf(IllegalArgumentException.class)
+
+        assertThatThrownBy(() -> new Orders(emptyOrders)).isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(DomainErrorMessage.INVALID_INPUT.getMessage());
     }
 
-    @DisplayName("일반 상품의 총 가격을 정확히 반환한다")
     @Test
+    @DisplayName("일반 상품의 총 가격을 정확히 반환한다")
     void getNormalProductPrice_ShouldReturnCorrectSum() {
-        // given
-        Order order1 = new Order(colaStocks, 5, orderDate); // 프로모션이 존재, 따라서 0
-        Order order2 = new Order(sodaStocks, 4, orderDate); // 4 * 1200
-
+        Order order1 = new Order(onePromoOneNormalCola, 5, orderDate); // 프로모션이 존재, 따라서 0
+        Order order2 = new Order(normarSodaStock, 4, orderDate); // 4 * 1200
         Orders orders = new Orders(List.of(order1, order2));
 
-        // when
         int normalProductPrice = orders.getNormalProductPrice();
 
-        // then
         Assertions.assertThat(normalProductPrice).isEqualTo(4800);
     }
 
-    @DisplayName("일반 재고를 사용해야 하는 주문만 반환한다")
     @Test
+    @DisplayName("일반 재고를 사용해야 하는 주문만 반환한다")
     void getFallBackToNormalOrders_ShouldReturnCorrectOrders() {
-        // given
-        Order order1 = new Order(colaStocks, 15, orderDate); // 프로모션 재고 10, 일반재고 5
+        Order order1 = new Order(onePromoOneNormalCola, 15, orderDate); // 프로모션 재고 10, 일반재고 5
         Orders orders = new Orders(List.of(order1));
 
-        // when
         List<Order> fallbackOrders = orders.getFallBackToNormalOrders();
 
-        // then
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(fallbackOrders).containsExactly(order1);
             softly.assertThat(fallbackOrders.getFirst().countFallbackToNormal()).isEqualTo(5);
         });
     }
 
-    @DisplayName("getFallBackToNormalOrders: 프로모션 재고로만 충족 가능한 주문은 반환하지 않는다")
     @Test
+    @DisplayName("getFallBackToNormalOrders: 프로모션 재고로만 충족 가능한 주문은 반환하지 않는다")
     void getFallBackToNormalOrders_ShouldExcludeFullyPromotionalOrders() {
-        // given
-        Order order1 = new Order(colaStocks, 8, orderDate); // 프로모션 재고로 충족 가능
-
+        Order order1 = new Order(onePromoOneNormalCola, 8, orderDate); // 프로모션 재고로 충족 가능
         Orders orders = new Orders(List.of(order1));
 
-        // when
         List<Order> fallbackOrders = orders.getFallBackToNormalOrders();
 
-        // then
         Assertions.assertThat(fallbackOrders).isEmpty();
+    }
+
+    @Nested
+    @DisplayName("decreaseAmount 테스트")
+    class DecreaseAmount {
+        @Test
+        @DisplayName("decreaseAmount 메서드는 총 주문 수량을 계산한다")
+        void decreaseAmount() {
+            Order order1 = new Order(normarSodaStock, 4, orderDate);
+            Order order2 = new Order(promotionPotatoChipStock, 3, orderDate);
+            Orders orders = new Orders(List.of(order1, order2));
+
+            int promotionDiscount = orders.getTotalQuantity();
+
+            Assertions.assertThat(promotionDiscount).isEqualTo(7);
+        }
+
+        @Test
+        @DisplayName("decreaseAmount 메서드는 프로모션 재고 먼저 차감하고 그 후 일반 재고를 차감한다.")
+        void decreaseAmount_promo() {
+            Order order1 = new Order(onePromoOneNormalCola, 14, orderDate);
+            Orders orders = new Orders(List.of(order1));
+
+            orders.decreaseAmount();
+
+            SoftAssertions.assertSoftly(softly -> {
+                Assertions.assertThat(colaPromo.getQuantity()).isZero();
+                Assertions.assertThat(cola.getQuantity()).isEqualTo(6);
+            });
+        }
     }
 }

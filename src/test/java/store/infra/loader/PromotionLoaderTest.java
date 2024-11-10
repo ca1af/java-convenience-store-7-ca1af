@@ -30,7 +30,6 @@ class PromotionLoaderTest {
                     softly.assertThat(promotion.get()).isEqualTo(getQuantity);
                     softly.assertThat(promotion.startDate()).isEqualTo(LocalDate.parse(startDate).atStartOfDay());
                     softly.assertThat(promotion.endDate()).isEqualTo(LocalDate.parse(endDate).atStartOfDay());
-                    softly.assertAll();
                 }
         );
     }

@@ -30,13 +30,10 @@ class ProductLoaderTest {
     })
     @DisplayName("파일에서 상품을 올바르게 로드하고 프로모션을 적용할 수 있다")
     void shouldLoadProductsWithPromotion(String name, int price, int quantity, String promotionName) {
-        // given
         List<Product> products = productLoader.loadProducts();
 
-        // when
         Product product = findProductByNameAndPromotion(products, name, promotionName);
 
-        // then
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(product.getName()).isEqualTo(name);
             softly.assertThat(product.getPrice()).isEqualTo(price);
@@ -53,13 +50,10 @@ class ProductLoaderTest {
     })
     @DisplayName("파일에서 프로모션이 없는 상품을 올바르게 로드할 수 있다")
     void shouldLoadProductsWithoutPromotion(String name, int price, int quantity, String promotionName) {
-        // given
         List<Product> products = productLoader.loadProducts();
 
-        // when
         Product product = findProductByNameAndPromotion(products, name, promotionName);
 
-        // then
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(product.getName()).isEqualTo(name);
             softly.assertThat(product.getPrice()).isEqualTo(price);

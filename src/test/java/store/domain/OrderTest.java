@@ -16,52 +16,12 @@ class OrderTest {
             LocalDateTime.now().plusDays(1));
     private final Product normalProduct = new Product("foo", 1000, 5, null);
     private final Product promoProductOnePlusOne = new Product("foo", 1000, 10, onePlusOne);
-    private final Product promoProductTwoPlusOne = new Product("foo", 2000, 15, twoPlusOne);
     private final List<Product> stocksOnePlusOne = List.of(promoProductOnePlusOne, normalProduct);
+    private final Product promoProductTwoPlusOne = new Product("foo", 2000, 15, twoPlusOne);
     private final List<Product> stocksTwoPlusOne = List.of(promoProductTwoPlusOne, normalProduct);
 
     private Order createOrder(List<Product> products, int orderQuantity) {
         return new Order(products, orderQuantity, DateTimes.now());
-    }
-
-    @Nested
-    @DisplayName("validateQuantity 메서드 테스트")
-    class ValidateQuantityTests {
-        @Test
-        @DisplayName("유효한 수량이면 예외를 발생시키지 않는다")
-        void shouldNotThrowWhenQuantityIsValid() {
-            Assertions.assertThatCode(() -> createOrder(stocksOnePlusOne, 5)).doesNotThrowAnyException();
-        }
-
-        @Test
-        @DisplayName("수량이 0 이하일 경우 예외를 발생시킨다")
-        void shouldThrowWhenQuantityIsInvalid() {
-            Assertions.assertThatThrownBy(() -> createOrder(stocksOnePlusOne, 0))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage(DomainErrorMessage.INVALID_QUANTITY.getMessage());
-            Assertions.assertThatThrownBy(() -> createOrder(stocksOnePlusOne, -1))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage(DomainErrorMessage.INVALID_QUANTITY.getMessage());
-        }
-    }
-
-    @Nested
-    @DisplayName("validateDifferentProducts 메서드 테스트")
-    class ValidateDifferentProductsTests {
-        @Test
-        @DisplayName("같은 상품으로 구성된 리스트는 예외를 발생시키지 않는다")
-        void shouldNotThrowWhenProductsAreSame() {
-            Assertions.assertThatCode(() -> createOrder(stocksOnePlusOne, 5)).doesNotThrowAnyException();
-        }
-
-        @Test
-        @DisplayName("다른 상품이 섞여 있는 경우 예외를 발생시킨다")
-        void shouldThrowWhenProductsAreDifferent() {
-            List<Product> mixedStocks = List.of(normalProduct, new Product("bar", 1500, 10, null));
-            Assertions.assertThatThrownBy(() -> createOrder(mixedStocks, 5))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage(DomainErrorMessage.NOT_IDENTICAL.getMessage());
-        }
     }
 
     @Test
@@ -82,13 +42,58 @@ class OrderTest {
     }
 
     @Nested
+    @DisplayName("validateQuantity 메서드 테스트")
+    class ValidateQuantityTests {
+        @Test
+        @DisplayName("유효한 수량이면 예외를 발생시키지 않는다")
+        void shouldNotThrowWhenQuantityIsValid() {
+            Assertions.assertThatCode(() -> createOrder(stocksOnePlusOne, 5)).doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("수량이 0 이하일 경우 예외를 발생시킨다")
+        void shouldThrowWhenQuantityIsInvalid() {
+            SoftAssertions.assertSoftly(softly -> {
+                softly.assertThatThrownBy(() -> createOrder(stocksOnePlusOne, 0))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessage(DomainErrorMessage.INVALID_QUANTITY.getMessage());
+                softly.assertThatThrownBy(() -> createOrder(stocksOnePlusOne, -1))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessage(DomainErrorMessage.INVALID_QUANTITY.getMessage());
+            });
+        }
+    }
+
+    @Nested
+    @DisplayName("validateDifferentProducts 메서드 테스트")
+    class ValidateDifferentProductsTests {
+        @Test
+        @DisplayName("같은 상품으로 구성된 리스트는 예외를 발생시키지 않는다")
+        void shouldNotThrowWhenProductsAreSame() {
+            Assertions.assertThatCode(() -> createOrder(stocksOnePlusOne, 5)).doesNotThrowAnyException();
+        }
+
+        @Test
+        @DisplayName("다른 상품이 섞여 있는 경우 예외를 발생시킨다")
+        void shouldThrowWhenProductsAreDifferent() {
+            List<Product> mixedStocks = List.of(normalProduct, new Product("bar", 1500, 10, null));
+
+            Assertions.assertThatThrownBy(() -> createOrder(mixedStocks, 5))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage(DomainErrorMessage.NOT_IDENTICAL.getMessage());
+        }
+    }
+
+    @Nested
     @DisplayName("hasFallbackToNormal 메서드 테스트")
     class HasFallbackToNormal {
         @Test
         @DisplayName("프로모션이 없는 상품은 false 를 반환한다.")
         void promotionIsEmpty() {
             Order order = new Order(List.of(normalProduct), 10, DateTimes.now());
+
             boolean expected = order.hasFallbackToNormal();
+
             Assertions.assertThat(expected).isFalse();
         }
 
@@ -97,7 +102,9 @@ class OrderTest {
         void promotionOutOfStock() {
             Product outOfStock = new Product("outOfStock", 1000, 0, onePlusOne);
             Order order = new Order(List.of(outOfStock), 10, DateTimes.now());
+
             boolean expected = order.hasFallbackToNormal();
+
             Assertions.assertThat(expected).isTrue();
         }
     }
@@ -157,72 +164,56 @@ class OrderTest {
         }
     }
 
-
     @Nested
     @DisplayName("프로모션 수량 계산 메서드 테스트")
     class GetPromotedCountTests {
         @Test
         @DisplayName("주문 수량에 따른 프로모션 수량을 정확히 계산한다 (1+1 프로모션)")
         void shouldReturnCorrectPromotedCountForOnePlusOne() {
-            // given
             Order order = createOrder(stocksOnePlusOne, 4);
 
-            // when
             int promotedCount = order.getPromotedCount();
 
-            // then
             Assertions.assertThat(promotedCount).isEqualTo(2);
         }
 
         @Test
         @DisplayName("주문 수량이 재고를 초과하면 프로모션 수량은 최대 재고만큼만 제공된다")
         void shouldLimitPromotedCountByStock() {
-            // given
             Order order = createOrder(stocksOnePlusOne, 20);
 
-            // when
             int promotedCount = order.getPromotedCount();
 
-            // then
             Assertions.assertThat(promotedCount).isEqualTo(5);
         }
 
         @Test
         @DisplayName("프로모션이 없는 상품일 경우 0을 반환한다")
         void shouldReturnZeroWhenNoPromotionExists() {
-            // given
             Order order = createOrder(List.of(normalProduct), 10);
 
-            // when
             int promotedCount = order.getPromotedCount();
 
-            // then
             Assertions.assertThat(promotedCount).isZero();
         }
 
         @Test
         @DisplayName("주문 수량에 따른 프로모션 수량을 정확히 계산한다 (2+1 프로모션)")
         void shouldReturnCorrectPromotedCountForTwoPlusOne() {
-            // given
             Order order = createOrder(stocksTwoPlusOne, 4);
 
-            // when
             int promotedCount = order.getPromotedCount();
 
-            // then
             Assertions.assertThat(promotedCount).isEqualTo(1);
         }
 
         @Test
         @DisplayName("2+1 프로모션에서 주문 수량이 부족하면 무료 제공 수량은 0이다")
         void shouldReturnZeroForInsufficientOrderQuantityInTwoPlusOne() {
-            // given
             Order order = createOrder(stocksTwoPlusOne, 1); // 주문 수량이 프로모션 조건 미달
 
-            // when
             int promotedCount = order.getPromotedCount();
 
-            // then
             Assertions.assertThat(promotedCount).isZero();
         }
     }

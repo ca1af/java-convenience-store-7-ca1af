@@ -19,9 +19,12 @@ class PromotionFactoryTest {
     @BeforeEach
     void setUp() {
         List<Promotion> promotions = List.of(
-                new Promotion("탄산2+1", 2, 1, LocalDate.of(2024, 1, 1).atStartOfDay(), LocalDate.of(2024, 12, 31).atStartOfDay()),
-                new Promotion("MD추천상품", 1, 1, LocalDate.of(2024, 1, 1).atStartOfDay(), LocalDate.of(2024, 12, 31).atStartOfDay()),
-                new Promotion("반짝할인", 1, 1, LocalDate.of(2024, 11, 1).atStartOfDay(), LocalDate.of(2024, 11, 30).atStartOfDay())
+                new Promotion("탄산2+1", 2, 1, LocalDate.of(2024, 1, 1).atStartOfDay(),
+                        LocalDate.of(2024, 12, 31).atStartOfDay()),
+                new Promotion("MD추천상품", 1, 1, LocalDate.of(2024, 1, 1).atStartOfDay(),
+                        LocalDate.of(2024, 12, 31).atStartOfDay()),
+                new Promotion("반짝할인", 1, 1, LocalDate.of(2024, 11, 1).atStartOfDay(),
+                        LocalDate.of(2024, 11, 30).atStartOfDay())
         );
         promotionFactory = new PromotionFactory(promotions);
     }
@@ -33,7 +36,8 @@ class PromotionFactoryTest {
             "MD추천상품, 1, 1, 2024-01-01, 2024-12-31",
             "반짝할인, 1, 1, 2024-11-01, 2024-11-30"
     })
-    void shouldReturnCorrectPromotion_WhenValidNameProvided(String name, int buyQuantity, int getQuantity, String startDate, String endDate) {
+    void shouldReturnCorrectPromotion_WhenValidNameProvided(String name, int buyQuantity, int getQuantity,
+                                                            String startDate, String endDate) {
         Promotion promotion = promotionFactory.getPromotion(name);
 
         SoftAssertions.assertSoftly(
