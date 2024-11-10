@@ -1,6 +1,8 @@
-package store.domain;
+package store.application;
 
 import java.util.List;
+import store.domain.Order;
+import store.domain.Orders;
 
 public record Receipt(String name, int quantity, int totalPrice) {
     public static Receipt of(Order order) {
@@ -23,8 +25,7 @@ public record Receipt(String name, int quantity, int totalPrice) {
                 .map(Receipt::ofPromotion)
                 .toList();
     }
-
-    // TODO : 포맷을 좀 더 간결히 할 수 없는지 고민한다. "상품영수증, 증정영수증, 결제영수증"
+    
     public String format() {
         if (totalPrice == 0) {
             return String.format("%-10s\t %2d", name, quantity);

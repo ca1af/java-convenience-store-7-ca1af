@@ -1,4 +1,6 @@
-package store.domain;
+package store.application;
+
+import store.domain.Orders;
 
 public record PaymentDetail(int totalAmount, int promotionDiscount, int totalQuantity, int memberShipDiscount,
                             int paymentAmount) {

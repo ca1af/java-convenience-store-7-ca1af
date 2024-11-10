@@ -1,11 +1,9 @@
-package store.presentation;
+package store.application;
 
 import java.util.List;
 import store.domain.Orders;
-import store.domain.PaymentDetail;
-import store.domain.Receipt;
 
-public class ReceiptPrinter {
+public class ReceiptFormatter {
     private static final String STORE_HEADER = "==============W 편의점================";
     private static final String PROMOTION_HEADER = "=============증\t\t정===============";
     private static final String DIVIDER = "====================================";
@@ -13,12 +11,12 @@ public class ReceiptPrinter {
     private final Orders orders;
     private final int memberShipDiscount;
 
-    public ReceiptPrinter(Orders orders, int memberShipDiscount) {
+    public ReceiptFormatter(Orders orders, int memberShipDiscount) {
         this.orders = orders;
         this.memberShipDiscount = memberShipDiscount;
     }
 
-    public String print() {
+    public String format() {
         StringBuilder receipt = new StringBuilder();
         appendOrderSection(receipt);
         appendPromotionSection(receipt);

@@ -1,12 +1,21 @@
 package store.presentation;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import store.application.OrderParser;
+import store.application.UserOrder;
 
 class OrderParserTest {
+    private OrderParser orderParser;
+
+    @BeforeEach
+    void setUp() {
+        orderParser = new OrderParser();
+    }
 
     @Test
     @DisplayName("정상적인 입력을 파싱하여 OrderRequestDto 리스트를 반환한다")
@@ -15,12 +24,12 @@ class OrderParserTest {
         String input = "[콜라-10],[사이다-5]";
 
         // when
-        List<OrderRequestDto> orderRequests = OrderParser.parseInput(input);
+        List<UserOrder> orderRequests = orderParser.parseInput(input);
 
         // then
         Assertions.assertThat(orderRequests)
                 .hasSize(2)
-                .extracting(OrderRequestDto::productName, OrderRequestDto::quantity)
+                .extracting(UserOrder::productName, UserOrder::quantity)
                 .containsExactlyInAnyOrder(
                         Assertions.tuple("콜라", 10),
                         Assertions.tuple("사이다", 5)
@@ -34,7 +43,7 @@ class OrderParserTest {
         String input = "[콜라-10],[콜라-5]";
 
         // when / then
-        Assertions.assertThatThrownBy(() -> OrderParser.parseInput(input))
+        Assertions.assertThatThrownBy(() -> orderParser.parseInput(input))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(PresentationErrorMessage.DUPLICATED_PRODUCT_NAME.getMessage());
     }
@@ -46,7 +55,7 @@ class OrderParserTest {
         String input = "[콜라-0],[사이다--5]";
 
         // when / then
-        Assertions.assertThatThrownBy(() -> OrderParser.parseInput(input))
+        Assertions.assertThatThrownBy(() -> orderParser.parseInput(input))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(PresentationErrorMessage.INVALID_QUANTITY.getMessage());
     }
@@ -58,7 +67,7 @@ class OrderParserTest {
         String input = "[콜라-abc]";
 
         // when / then
-        Assertions.assertThatThrownBy(() -> OrderParser.parseInput(input))
+        Assertions.assertThatThrownBy(() -> orderParser.parseInput(input))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(PresentationErrorMessage.INVALID_INPUT.getMessage());
     }
@@ -70,7 +79,7 @@ class OrderParserTest {
         String input = " ";
 
         // when / then
-        Assertions.assertThatThrownBy(() -> OrderParser.parseInput(input))
+        Assertions.assertThatThrownBy(() -> orderParser.parseInput(input))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(PresentationErrorMessage.INVALID_PRODUCT_INPUT.getMessage());
     }
@@ -82,12 +91,12 @@ class OrderParserTest {
         String input = "[콜라 - 10], [사이다 - 5]"; // 공백 포함
 
         // when
-        List<OrderRequestDto> orderRequests = OrderParser.parseInput(input);
+        List<UserOrder> orderRequests = orderParser.parseInput(input);
 
         // then
         Assertions.assertThat(orderRequests)
                 .hasSize(2)
-                .extracting(OrderRequestDto::productName, OrderRequestDto::quantity)
+                .extracting(UserOrder::productName, UserOrder::quantity)
                 .containsExactlyInAnyOrder(
                         Assertions.tuple("콜라", 10),
                         Assertions.tuple("사이다", 5)

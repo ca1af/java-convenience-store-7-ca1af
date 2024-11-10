@@ -12,8 +12,9 @@ import store.domain.Order;
 import store.domain.Orders;
 import store.domain.Product;
 import store.domain.Promotion;
+import store.application.ReceiptFormatter;
 
-class ReceiptPrinterTest {
+class ReceiptFormatterTest {
     private LocalDateTime orderDate;
 
     @BeforeEach
@@ -23,7 +24,7 @@ class ReceiptPrinterTest {
 
     @Test
     @DisplayName("영수증 출력 테스트 - 정상 출력")
-    void printReceiptSuccessfully() {
+    void formatReceiptSuccessfully() {
         // given
         Product cola = new Product("콜라", 1000, 10, new Promotion("2+1", 2, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1)));
         Product energyBar = new Product("에너지바", 2000, 5, null);
@@ -34,10 +35,10 @@ class ReceiptPrinterTest {
         Orders orders = new Orders(List.of(order1, order2));
         int memberShipDiscount = 3000;
 
-        ReceiptPrinter printer = new ReceiptPrinter(orders, memberShipDiscount);
+        ReceiptFormatter printer = new ReceiptFormatter(orders, memberShipDiscount);
 
         // when
-        String receipt = printer.print();
+        String receipt = printer.format();
 
         // then
         String expectedReceipt = """
@@ -57,7 +58,7 @@ class ReceiptPrinterTest {
 
     @Test
     @DisplayName("영수증 출력 테스트 - 프로모션 없는 경우")
-    void printReceiptWithoutPromotion() {
+    void formatReceiptWithoutPromotion() {
         // given
         Product water = new Product("물", 500, 10, null);
         Product snack = new Product("스낵", 1500, 5, null);
@@ -68,10 +69,10 @@ class ReceiptPrinterTest {
         Orders orders = new Orders(List.of(order1, order2));
         int memberShipDiscount = 2000;
 
-        ReceiptPrinter printer = new ReceiptPrinter(orders, memberShipDiscount);
+        ReceiptFormatter printer = new ReceiptFormatter(orders, memberShipDiscount);
 
         // when
-        String receipt = printer.print();
+        String receipt = printer.format();
 
         // then
         String expectedReceipt = """
@@ -90,7 +91,7 @@ class ReceiptPrinterTest {
 
     @Test
     @DisplayName("영수증 출력 테스트 - 멤버십 할인 없는 경우")
-    void printReceiptWithoutMemberShipDiscount() {
+    void formatReceiptWithoutMemberShipDiscount() {
         // given
         Product juice = new Product("주스", 2000, 10, new Promotion("1+1", 1, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1)));
 
@@ -99,10 +100,10 @@ class ReceiptPrinterTest {
         Orders orders = new Orders(List.of(order));
         int memberShipDiscount = 0;
 
-        ReceiptPrinter printer = new ReceiptPrinter(orders, memberShipDiscount);
+        ReceiptFormatter printer = new ReceiptFormatter(orders, memberShipDiscount);
 
         // when
-        String receipt = printer.print();
+        String receipt = printer.format();
 
         // then
         String expectedReceipt = """

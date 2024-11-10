@@ -1,5 +1,7 @@
 package store;
 
+import store.application.ConvenienceStoreService;
+import store.application.OrderParser;
 import store.infra.FilerLoaderProductRepository;
 import store.presentation.ConvenienceStoreController;
 import store.presentation.InputView;
@@ -10,8 +12,11 @@ public class Application {
         InputView inputView = new InputView();
         OutputView outputView = new OutputView();
         FilerLoaderProductRepository filerLoaderProductRepository = new FilerLoaderProductRepository();
+        OrderParser orderParser = new OrderParser();
+        ConvenienceStoreService convenienceStoreService = new ConvenienceStoreService(filerLoaderProductRepository,
+                orderParser);
         ConvenienceStoreController convenienceStoreController = new ConvenienceStoreController(inputView, outputView,
-                filerLoaderProductRepository);
-        convenienceStoreController.run2();
+                convenienceStoreService);
+        convenienceStoreController.run();
     }
 }
