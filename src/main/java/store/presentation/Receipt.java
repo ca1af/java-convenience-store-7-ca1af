@@ -1,4 +1,4 @@
-package store.application;
+package store.presentation;
 
 import java.util.List;
 import store.domain.Order;

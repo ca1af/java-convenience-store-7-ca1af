@@ -6,8 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import store.application.OrderParser;
-import store.application.UserOrder;
 
 class OrderParserTest {
     private OrderParser orderParser;

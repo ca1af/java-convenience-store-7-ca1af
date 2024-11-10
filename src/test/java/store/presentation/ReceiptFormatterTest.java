@@ -12,7 +12,6 @@ import store.domain.Order;
 import store.domain.Orders;
 import store.domain.Product;
 import store.domain.Promotion;
-import store.application.ReceiptFormatter;
 
 class ReceiptFormatterTest {
     private LocalDateTime orderDate;

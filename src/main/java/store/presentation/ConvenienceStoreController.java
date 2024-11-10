@@ -2,27 +2,31 @@ package store.presentation;
 
 import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDateTime;
-import store.application.ConvenienceStoreService;
-import store.application.ReceiptFormatter;
+import java.util.List;
 import store.domain.MemberShip;
 import store.domain.Order;
 import store.domain.Orders;
+import store.infra.FilerLoaderProductRepository;
+import store.presentation.view.InputView;
+import store.presentation.view.OutputView;
 
 public class ConvenienceStoreController {
     private final InputView inputView;
     private final OutputView outputView;
-    private final ConvenienceStoreService convenienceStoreService;
+    private final FilerLoaderProductRepository filerLoaderProductRepository;
+    private final OrderParser orderParser;
 
     public ConvenienceStoreController(InputView inputView, OutputView outputView,
-                                      ConvenienceStoreService convenienceStoreService) {
+                                      FilerLoaderProductRepository filerLoaderProductRepository, OrderParser orderParser) {
         this.inputView = inputView;
         this.outputView = outputView;
-        this.convenienceStoreService = convenienceStoreService;
+        this.filerLoaderProductRepository = filerLoaderProductRepository;
+        this.orderParser = orderParser;
     }
 
     public void printStart() {
         outputView.printStart();
-        outputView.printStocks(convenienceStoreService.getStocks());
+        outputView.printStocks(filerLoaderProductRepository.toString());
     }
 
     public void run() {
@@ -40,16 +44,31 @@ public class ConvenienceStoreController {
         printStart();
         Orders orders = RetryHandler.retry(() -> retrieveOrdersFromInput(currentOrderDate));
         processOrderDetails(orders);
-        ReceiptFormatter receiptFormatter = convenienceStoreService.finalizePurchase(
-                orders, membership, isMembershipDiscountApplicable()
-        );
+        ReceiptFormatter receiptFormatter = finalizePurchase(orders, membership, isMembershipDiscountApplicable());
         outputView.printReceipt(receiptFormatter.format());
         orders.decreaseAmount();
     }
 
+    private ReceiptFormatter finalizePurchase(Orders orders, MemberShip memberShip, boolean memberShipApplicable) {
+        if (memberShipApplicable) {
+            int discount = memberShip.applyDiscount(orders);
+            return new ReceiptFormatter(orders, discount);
+        }
+
+        return new ReceiptFormatter(orders, 0);
+    }
+
     private Orders retrieveOrdersFromInput(LocalDateTime currentOrderDate) {
         String userOrderInput = inputView.getOrders();
-        return convenienceStoreService.createOrdersFromInput(userOrderInput, currentOrderDate);
+        List<UserOrder> parsedUserOrders = orderParser.parseInput(userOrderInput);
+        return convertToDomainOrders(parsedUserOrders, currentOrderDate);
+    }
+
+    private Orders convertToDomainOrders(List<UserOrder> parsedUserOrders, LocalDateTime orderDate) {
+        List<Order> domainOrders = parsedUserOrders.stream()
+                .map(each -> each.toDomain(filerLoaderProductRepository.findAllByName(each.productName()), orderDate))
+                .toList();
+        return new Orders(domainOrders);
     }
 
     private void processOrderDetails(Orders orders) {
@@ -65,14 +84,14 @@ public class ConvenienceStoreController {
         int fallbackItemCount = order.countFallbackToNormal();
         String fallbackPurchaseDecision = inputView.askToPurchaseNormalItems(order.getProductName(), fallbackItemCount);
         if (fallbackPurchaseDecision.equalsIgnoreCase("N")) {
-            convenienceStoreService.rejectFallbackItems(order, fallbackItemCount);
+            order.decreaseQuantity(fallbackItemCount);
         }
     }
 
     private void handleUnclaimedFreeItems(Order order) {
         String freeItemDecision = inputView.getUnclaimedFreeItemWanted(order.getProductName());
         if (freeItemDecision.equalsIgnoreCase("Y")) {
-            convenienceStoreService.addFreeItem(order);
+            order.addQuantity();
         }
     }
 

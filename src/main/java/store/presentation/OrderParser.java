@@ -1,16 +1,36 @@
-package store.application;
+package store.presentation;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import store.presentation.PresentationErrorMessage;
 
 public class OrderParser {
     private static final String BRACKETS_REGEX = "[\\[\\]]";
     private static final String ITEM_DELIMITER = ",";
     private static final String PARTS_DELIMITER = "-";
     private static final int EXPECTED_PARTS_COUNT = 2;
+
+    public List<UserOrder> parseInput(String input) {
+        input = input.replaceAll(BRACKETS_REGEX, ""); // Remove brackets
+        String[] items = input.split(ITEM_DELIMITER);
+
+        List<UserOrder> orderRequests = Arrays.stream(items)
+                .map(OrderParser::parseItem)
+                .toList();
+
+        checkForDuplicateProductNames(orderRequests);
+        return orderRequests;
+    }
+
+    private static void checkForDuplicateProductNames(List<UserOrder> orderRequests) {
+        Set<String> uniqueProductNames = new HashSet<>();
+        for (UserOrder request : orderRequests) {
+            if (!uniqueProductNames.add(request.productName())) {
+                throw new IllegalArgumentException(PresentationErrorMessage.DUPLICATED_PRODUCT_NAME.getMessage());
+            }
+        }
+    }
 
     private static UserOrder parseItem(String item) {
         String[] parts = item.split(PARTS_DELIMITER);
@@ -32,26 +52,5 @@ public class OrderParser {
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException(PresentationErrorMessage.INVALID_INPUT.getMessage());
         }
-    }
-
-    private static void checkForDuplicateProductNames(List<UserOrder> orderRequests) {
-        Set<String> uniqueProductNames = new HashSet<>();
-        for (UserOrder request : orderRequests) {
-            if (!uniqueProductNames.add(request.productName())) {
-                throw new IllegalArgumentException(PresentationErrorMessage.DUPLICATED_PRODUCT_NAME.getMessage());
-            }
-        }
-    }
-
-    public List<UserOrder> parseInput(String input) {
-        input = input.replaceAll(BRACKETS_REGEX, ""); // Remove brackets
-        String[] items = input.split(ITEM_DELIMITER);
-
-        List<UserOrder> orderRequests = Arrays.stream(items)
-                .map(OrderParser::parseItem)
-                .toList();
-
-        checkForDuplicateProductNames(orderRequests);
-        return orderRequests;
     }
 }
