@@ -1,4 +1,4 @@
-package store.domain;
+package store.presentation;
 
 import camp.nextstep.edu.missionutils.DateTimes;
 import org.assertj.core.api.Assertions;
@@ -8,6 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import store.domain.Order;
+import store.domain.Orders;
+import store.domain.Product;
+import store.domain.Promotion;
 
 class ReceiptPrinterTest {
     private LocalDateTime orderDate;

@@ -1,6 +1,9 @@
-package store.domain;
+package store.presentation;
 
 import java.util.List;
+import store.domain.Orders;
+import store.domain.PaymentDetail;
+import store.domain.Receipt;
 
 public class ReceiptPrinter {
     private static final String STORE_HEADER = "==============W 편의점================";

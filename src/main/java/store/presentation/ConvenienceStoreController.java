@@ -7,7 +7,6 @@ import java.util.Objects;
 import store.domain.MemberShip;
 import store.domain.Order;
 import store.domain.Orders;
-import store.domain.ReceiptPrinter;
 import store.infra.FilerLoaderProductRepository;
 
 public class ConvenienceStoreController {
