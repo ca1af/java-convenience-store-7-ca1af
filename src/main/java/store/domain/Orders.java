@@ -7,8 +7,19 @@ public class Orders {
     private final List<Order> requestedOrders;
 
     public Orders(List<Order> requestedOrders) {
-        validateSelf(requestedOrders);
+        validate(requestedOrders);
         this.requestedOrders = requestedOrders;
+    }
+
+    private void validate(List<Order> orders) {
+        if (orders.isEmpty()) {
+            throw new IllegalArgumentException(DomainErrorMessage.INVALID_INPUT.getMessage());
+        }
+
+        Optional<Order> unavailableOrder = orders.stream().filter(each -> !each.available()).findAny();
+        if (unavailableOrder.isPresent()) {
+            throw new IllegalArgumentException(DomainErrorMessage.QUANTITY_EXCEEDED.getMessage());
+        }
     }
 
     public List<Order> getRequestedOrders() {
@@ -33,17 +44,6 @@ public class Orders {
 
     public int getTotalQuantity() {
         return requestedOrders.stream().mapToInt(Order::getQuantity).sum();
-    }
-
-    private void validateSelf(List<Order> orders) {
-        if (orders.isEmpty()) {
-            throw new IllegalArgumentException(DomainErrorMessage.INVALID_INPUT.getMessage());
-        }
-
-        Optional<Order> unavailableOrder = orders.stream().filter(each -> !each.available()).findAny();
-        if (unavailableOrder.isPresent()) {
-            throw new IllegalArgumentException(DomainErrorMessage.QUANTITY_EXCEEDED.getMessage());
-        }
     }
 
     public int getNormalProductPrice() {
