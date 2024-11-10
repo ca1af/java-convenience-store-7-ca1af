@@ -13,7 +13,6 @@ public class Order {
         this.orderDate = orderDate;
         validateDifferentProducts(stocks);
         this.stocks = stocks;
-        validateQuantity(quantity);
         this.quantity = quantity;
     }
 
@@ -22,12 +21,6 @@ public class Order {
         boolean hasDifferentProducts = stocks.stream().anyMatch(product -> !product.getName().equals(productName));
         if (hasDifferentProducts) {
             throw new IllegalArgumentException(DomainErrorMessage.NOT_IDENTICAL.getMessage());
-        }
-    }
-
-    private void validateQuantity(int quantity) {
-        if (quantity <= 0) {
-            throw new IllegalArgumentException(DomainErrorMessage.INVALID_QUANTITY.getMessage());
         }
     }
 

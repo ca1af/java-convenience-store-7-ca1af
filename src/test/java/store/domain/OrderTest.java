@@ -42,29 +42,6 @@ class OrderTest {
     }
 
     @Nested
-    @DisplayName("validateQuantity 메서드 테스트")
-    class ValidateQuantityTests {
-        @Test
-        @DisplayName("유효한 수량이면 예외를 발생시키지 않는다")
-        void shouldNotThrowWhenQuantityIsValid() {
-            Assertions.assertThatCode(() -> createOrder(stocksOnePlusOne, 5)).doesNotThrowAnyException();
-        }
-
-        @Test
-        @DisplayName("수량이 0 이하일 경우 예외를 발생시킨다")
-        void shouldThrowWhenQuantityIsInvalid() {
-            SoftAssertions.assertSoftly(softly -> {
-                softly.assertThatThrownBy(() -> createOrder(stocksOnePlusOne, 0))
-                        .isInstanceOf(IllegalArgumentException.class)
-                        .hasMessage(DomainErrorMessage.INVALID_QUANTITY.getMessage());
-                softly.assertThatThrownBy(() -> createOrder(stocksOnePlusOne, -1))
-                        .isInstanceOf(IllegalArgumentException.class)
-                        .hasMessage(DomainErrorMessage.INVALID_QUANTITY.getMessage());
-            });
-        }
-    }
-
-    @Nested
     @DisplayName("validateDifferentProducts 메서드 테스트")
     class ValidateDifferentProductsTests {
         @Test
