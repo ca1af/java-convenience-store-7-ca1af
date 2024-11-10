@@ -7,11 +7,11 @@ public class OutputView {
         System.out.println(START_MESSAGE);
     }
 
-    public void printStocks(String stocks){
+    public void printStocks(String stocks) {
         System.out.println(System.lineSeparator() + stocks);
     }
 
-    public void printReceipt(String receipt){
+    public void printReceipt(String receipt) {
         System.out.println(receipt);
     }
 }

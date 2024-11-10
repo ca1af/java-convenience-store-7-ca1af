@@ -14,13 +14,14 @@ public class ConvenienceStoreController {
     private final OutputView outputView;
     private final FilerLoaderProductRepository filerLoaderProductRepository;
 
-    public ConvenienceStoreController(InputView inputView, OutputView outputView, FilerLoaderProductRepository filerLoaderProductRepository) {
+    public ConvenienceStoreController(InputView inputView, OutputView outputView,
+                                      FilerLoaderProductRepository filerLoaderProductRepository) {
         this.inputView = inputView;
         this.outputView = outputView;
         this.filerLoaderProductRepository = filerLoaderProductRepository;
     }
 
-    public void printStart(){
+    public void printStart() {
         outputView.printStart();
         outputView.printStocks(filerLoaderProductRepository.toString());
     }
@@ -30,13 +31,13 @@ public class ConvenienceStoreController {
         do {
             run(memberShip, DateTimes.now());
             String wantMore = inputView.getWantMore();
-            if (wantMore.equalsIgnoreCase("N")){
+            if (wantMore.equalsIgnoreCase("N")) {
                 break;
             }
         } while (true);
     }
 
-    public void run(MemberShip memberShip, LocalDateTime orderDate){
+    public void run(MemberShip memberShip, LocalDateTime orderDate) {
         printStart();
         Orders orders = RetryHandler.retry(() -> getOrders(orderDate));
         ReceiptPrinter receiptPrinter = processPurchase(orders, memberShip);
@@ -44,7 +45,7 @@ public class ConvenienceStoreController {
         orders.decreaseAmount();
     }
 
-    public Orders getOrders(LocalDateTime orderDate){
+    public Orders getOrders(LocalDateTime orderDate) {
         List<OrderRequestDto> orderRequestDtos = OrderParser.parseInput(inputView.getOrders());
         List<Order> orders = orderRequestDtos.stream()
                 .map(each -> each.toDomain(filerLoaderProductRepository.findAllByName(each.productName()), orderDate))
@@ -52,10 +53,10 @@ public class ConvenienceStoreController {
         return new Orders(orders);
     }
 
-    public ReceiptPrinter processPurchase(Orders orders, MemberShip memberShip){
+    public ReceiptPrinter processPurchase(Orders orders, MemberShip memberShip) {
         formatOrders(orders);
 
-        if (memberShipApplicable()){
+        if (memberShipApplicable()) {
             int discount = memberShip.applyDiscount(orders);
             return new ReceiptPrinter(orders, discount);
         }
@@ -70,25 +71,25 @@ public class ConvenienceStoreController {
         fallBackToNormalOrders.forEach(this::askToPurchaseNormalItems);
     }
 
-    private boolean memberShipApplicable(){
+    private boolean memberShipApplicable() {
         return Objects.equals("Y", inputView.addMembershipDiscount());
     }
 
-    private void askToPurchaseNormalItems(Order order){
-        if (!order.hasFallbackToNormal()){
+    private void askToPurchaseNormalItems(Order order) {
+        if (!order.hasFallbackToNormal()) {
             return;
         }
 
         int normalItemCount = order.countFallbackToNormal();
         String unclaimedFreeItemWanted = inputView.askToPurchaseNormalItems(order.getProductName(), normalItemCount);
-        if (Objects.equals("N", unclaimedFreeItemWanted)){
+        if (Objects.equals("N", unclaimedFreeItemWanted)) {
             order.decreaseQuantity(normalItemCount);
         }
     }
 
-    private void askToAddFreeItem(Order order){
+    private void askToAddFreeItem(Order order) {
         String unclaimedFreeItemWanted = inputView.getUnclaimedFreeItemWanted(order.getProductName());
-        if (Objects.equals(unclaimedFreeItemWanted, "Y")){
+        if (Objects.equals(unclaimedFreeItemWanted, "Y")) {
             order.addQuantity();
         }
     }

@@ -6,8 +6,8 @@ import java.util.Optional;
 
 public class Order {
     private final List<Product> stocks;
-    private int quantity;
     private final LocalDateTime orderDate;
+    private int quantity;
 
     public Order(List<Product> stocks, int quantity, LocalDateTime orderDate) {
         this.orderDate = orderDate;
@@ -15,12 +15,6 @@ public class Order {
         this.stocks = stocks;
         validateQuantity(quantity);
         this.quantity = quantity;
-    }
-
-    private void validateQuantity(int quantity) {
-        if (quantity <= 0) {
-            throw new IllegalArgumentException(DomainErrorMessage.INVALID_QUANTITY.getMessage());
-        }
     }
 
     private static void validateDifferentProducts(List<Product> stocks) {
@@ -31,7 +25,13 @@ public class Order {
         }
     }
 
-    public int getProductPrice(){
+    private void validateQuantity(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException(DomainErrorMessage.INVALID_QUANTITY.getMessage());
+        }
+    }
+
+    public int getProductPrice() {
         return stocks.getFirst().getPrice();
     }
 

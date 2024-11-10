@@ -16,17 +16,17 @@ public class FilerLoaderProductRepository {
         this.stocks = productLoader.loadProducts();
     }
 
+    private static boolean findProductByName(String productName, Product each) {
+        return each.getName().equals(productName);
+    }
+
     public List<Product> findAllByName(String productName) {
         return stocks.stream()
                 .filter(each -> findProductByName(productName, each))
                 .toList();
     }
 
-    private static boolean findProductByName(String productName, Product each) {
-        return each.getName().equals(productName);
-    }
-
-    public boolean hasProduct(String productName){
+    public boolean hasProduct(String productName) {
         return stocks.stream().anyMatch(each -> findProductByName(productName, each));
     }
 

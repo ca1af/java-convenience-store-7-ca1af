@@ -19,7 +19,7 @@ public class Orders {
         return requestedOrders.stream().filter(Order::hasUnclaimedFreeItem).toList();
     }
 
-    public List<Order> getPromotedOrders(){
+    public List<Order> getPromotedOrders() {
         return requestedOrders.stream()
                 .filter(each -> each.getPromotedCount() > 0)
                 .toList();
@@ -50,17 +50,17 @@ public class Orders {
         }
     }
 
-    public int getNormalProductPrice(){
+    public int getNormalProductPrice() {
         return requestedOrders.stream().mapToInt(Order::getNormalProductPrice).sum();
     }
 
-    public List<Order> getFallBackToNormalOrders(){
+    public List<Order> getFallBackToNormalOrders() {
         return requestedOrders.stream()
                 .filter(each -> each.countFallbackToNormal() > 0)
                 .toList();
     }
 
-    public void decreaseAmount(){
+    public void decreaseAmount() {
         requestedOrders.forEach(Order::decreaseStocks);
     }
 }

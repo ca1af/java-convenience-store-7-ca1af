@@ -17,7 +17,8 @@ public class InputView {
     }
 
     public String askToPurchaseNormalItems(String productName, int quantity) {
-        return askWithValidation(InputValidator::validateYesOrNo, String.format(FALLBACK_TO_NORMAL, productName, quantity)
+        return askWithValidation(InputValidator::validateYesOrNo,
+                String.format(FALLBACK_TO_NORMAL, productName, quantity)
         );
     }
 

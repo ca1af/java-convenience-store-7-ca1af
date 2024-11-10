@@ -6,8 +6,8 @@ import java.util.Objects;
 public final class Product {
     private final String name;
     private final int price;
-    private int quantity;
     private final Promotion promotion;
+    private int quantity;
 
     public Product(String name, int price, int quantity, Promotion promotion) {
         this.name = name;
@@ -27,8 +27,8 @@ public final class Product {
         return remaining;
     }
 
-    public int getPromotedCount(int orderQuantity){
-        if (orderQuantity > quantity){
+    public int getPromotedCount(int orderQuantity) {
+        if (orderQuantity > quantity) {
             return promotion.promotionGetCount(quantity);
         }
         return promotion.promotionGetCount(orderQuantity);
@@ -38,12 +38,12 @@ public final class Product {
         return promotionNotNull() && promotion.applicable(orderDate);
     }
 
-    private boolean promotionNotNull(){
+    private boolean promotionNotNull() {
         return !Objects.isNull(promotion);
     }
 
     public boolean hasUnclaimedFreeItem(int quantity, LocalDateTime orderDate) {
-        if (!promotionExists(orderDate) || quantity <= 0){
+        if (!promotionExists(orderDate) || quantity <= 0) {
             return false;
         }
         if (quantity >= this.quantity) { // 같다면 무료 증정이 불가하다 (1+1 으로 5개 주문, 재고 5개면 5개 나가야한다.)
@@ -54,7 +54,7 @@ public final class Product {
 
     @Override
     public String toString() {
-        if (quantity > 0){
+        if (quantity > 0) {
             return formatWithStock();
         }
 
@@ -102,7 +102,7 @@ public final class Product {
         return quantity;
     }
 
-    public int getPrice(){
+    public int getPrice() {
         return price;
     }
 }

@@ -1,8 +1,8 @@
 package store.domain;
 
 public class MemberShip {
-    private int eligibleAmount = 8_000;
     private static final double DISCOUNT_RATE = 0.3;
+    private int eligibleAmount = 8_000;
 
     public int applyDiscount(Orders orders) {
         int normalProductPrice = orders.getNormalProductPrice();

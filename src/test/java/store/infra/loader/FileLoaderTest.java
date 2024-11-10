@@ -45,7 +45,7 @@ class FileLoaderTest {
 
         SoftAssertions.assertSoftly(softly -> {
             softly.assertThat(lines).hasSize(2);
-            softly.assertThat(lines.get(0)).isEqualTo("field1,field2,field3");
+            softly.assertThat(lines.getFirst()).isEqualTo("field1,field2,field3");
             softly.assertThat(lines.get(1)).isEqualTo("data1,data2,data3");
         });
     }
