@@ -2,8 +2,8 @@ package store;
 
 import store.infra.FilerLoaderProductRepository;
 import store.presentation.ConvenienceStoreController;
-import store.presentation.view.InputView;
 import store.presentation.OrderParser;
+import store.presentation.view.InputView;
 import store.presentation.view.OutputView;
 
 public class Application {

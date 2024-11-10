@@ -39,7 +39,8 @@ public class Orders {
     }
 
     public int getPromotionDiscount() {
-        return getPromotedOrders().stream().mapToInt(order -> order.calculatePromotedCount() * order.getProductPrice()).sum();
+        return getPromotedOrders().stream().mapToInt(order -> order.calculatePromotedCount() * order.getProductPrice())
+                .sum();
     }
 
     public int getTotalQuantity() {

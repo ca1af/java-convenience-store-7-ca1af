@@ -17,7 +17,8 @@ public class ConvenienceStoreController {
     private final OrderParser orderParser;
 
     public ConvenienceStoreController(InputView inputView, OutputView outputView,
-                                      FilerLoaderProductRepository filerLoaderProductRepository, OrderParser orderParser) {
+                                      FilerLoaderProductRepository filerLoaderProductRepository,
+                                      OrderParser orderParser) {
         this.inputView = inputView;
         this.outputView = outputView;
         this.filerLoaderProductRepository = filerLoaderProductRepository;

@@ -69,7 +69,8 @@ public final class Product {
     }
 
     private String formatOutOfStock() {
-        return String.format(OUT_OF_STOCK_FORMAT, MESSAGE_PREFIX + name, price) + OUT_OF_STOCK_MESSAGE + getPromotionInfo();
+        return String.format(OUT_OF_STOCK_FORMAT, MESSAGE_PREFIX + name, price) + OUT_OF_STOCK_MESSAGE
+                + getPromotionInfo();
     }
 
     private String getPromotionInfo() {

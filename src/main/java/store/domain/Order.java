@@ -96,7 +96,7 @@ public class Order {
         return promotionProduct.map(product -> product.decrease(quantity)).orElse(quantity);
     }
 
-    private void decreaseNormalAmount(int remainingQuantity){
+    private void decreaseNormalAmount(int remainingQuantity) {
         getNormalProduct().ifPresent(product -> product.decrease(remainingQuantity));
     }
 

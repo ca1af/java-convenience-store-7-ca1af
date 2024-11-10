@@ -18,20 +18,6 @@ class FileLoaderTest {
     private static final String INVALID_FILE_PATH = "src/test/resources/nonexistent.md";
     private static StubFileLoader fileLoader;
 
-    static class StubFileLoader extends FileLoader<String> {
-
-        @Override
-        protected List<String> parseLines(List<String> lines) {
-            return lines;
-        }
-
-        @Override
-        protected List<String> load(String filePath) {
-            List<String> lines = readFileLines(filePath);
-            return parseLines(lines);
-        }
-    }
-
     @BeforeAll
     static void setUp() {
         fileLoader = new StubFileLoader();
@@ -116,5 +102,19 @@ class FileLoaderTest {
         Assertions.assertThatThrownBy(() -> fileLoader.getDeclaredFields(line, 3))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(InfraErrorMessage.INVALID_PROMOTION_FORMAT.getMessage());
+    }
+
+    static class StubFileLoader extends FileLoader<String> {
+
+        @Override
+        protected List<String> parseLines(List<String> lines) {
+            return lines;
+        }
+
+        @Override
+        protected List<String> load(String filePath) {
+            List<String> lines = readFileLines(filePath);
+            return parseLines(lines);
+        }
     }
 }

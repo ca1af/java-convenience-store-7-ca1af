@@ -48,8 +48,7 @@ public class ReceiptFormatter {
     }
 
     private void appendReceiptLine(StringBuilder receipt, Receipt item) {
-        receipt.append(item.format())
-                .append(System.lineSeparator());
+        receipt.append(item.format()).append(System.lineSeparator());
     }
 
     private void appendPaymentLine(StringBuilder receipt, String title, String prefix, int amount) {

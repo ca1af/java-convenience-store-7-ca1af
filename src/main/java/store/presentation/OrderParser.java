@@ -15,9 +15,7 @@ public class OrderParser {
         input = input.replaceAll(BRACKETS_REGEX, ""); // Remove brackets
         String[] items = input.split(ITEM_DELIMITER);
 
-        List<UserOrder> orderRequests = Arrays.stream(items)
-                .map(OrderParser::parseItem)
-                .toList();
+        List<UserOrder> orderRequests = Arrays.stream(items).map(OrderParser::parseItem).toList();
 
         checkForDuplicateProductNames(orderRequests);
         return orderRequests;
