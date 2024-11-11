@@ -1,4 +1,4 @@
-package store.presentation;
+package store.application;
 
 import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDateTime;
@@ -7,8 +7,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import store.domain.OrderProduct;
 import store.domain.Order;
+import store.domain.OrderProduct;
 import store.domain.Product;
 import store.domain.Promotion;
 
@@ -55,7 +55,6 @@ class ReceiptFormatterTest {
     @Test
     @DisplayName("영수증 출력 테스트 - 프로모션 없는 경우")
     void formatReceiptWithoutPromotion() {
-
         Product water = new Product("물", 500, 10, null);
         Product snack = new Product("스낵", 1500, 5, null);
 
@@ -86,7 +85,6 @@ class ReceiptFormatterTest {
     @Test
     @DisplayName("영수증 출력 테스트 - 멤버십 할인 없는 경우")
     void formatReceiptWithoutMemberShipDiscount() {
-
         Product juice = new Product("주스", 2000, 10,
                 new Promotion("1+1", 1, 1, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(1)));
 

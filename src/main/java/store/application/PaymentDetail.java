@@ -1,4 +1,4 @@
-package store.presentation;
+package store.application;
 
 import store.domain.Order;
 
