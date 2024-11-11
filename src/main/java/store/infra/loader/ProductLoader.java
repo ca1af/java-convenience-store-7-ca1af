@@ -35,7 +35,7 @@ public class ProductLoader extends FileLoader<Product> {
                 .map(each -> new Product(each.getName(), each.getPrice(), 0, null))
                 .forEach(products::add);
 
-        return products;
+        return List.copyOf(products);
     }
 
     private static boolean isPromotionExistsAndNormalDont(Product each, Product all) {
