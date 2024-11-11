@@ -1,7 +1,7 @@
-package store.presentation;
+package store.application;
 
 import java.util.List;
-import store.domain.Order;
+import store.domain.order.Order;
 
 public class ReceiptFormatter {
     private static final String STORE_HEADER = "==============W 편의점================";

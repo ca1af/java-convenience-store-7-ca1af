@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import store.domain.Promotion;
+import store.domain.discount.Promotion;
 
 public class PromotionFactory {
     private static final String NULL_PROMOTION_NAME = "null";

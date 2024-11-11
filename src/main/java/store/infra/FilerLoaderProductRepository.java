@@ -2,7 +2,7 @@ package store.infra;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import store.domain.Product;
+import store.domain.product.Product;
 import store.infra.loader.ProductLoader;
 import store.infra.loader.PromotionLoader;
 

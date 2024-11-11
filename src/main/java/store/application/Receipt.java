@@ -1,12 +1,12 @@
-package store.presentation;
+package store.application;
 
 import java.util.List;
-import store.domain.OrderProduct;
-import store.domain.Order;
+import store.domain.order.Order;
+import store.domain.order.OrderProduct;
 
 public record Receipt(String name, int quantity, int totalPrice) {
     public static Receipt of(OrderProduct orderProduct) {
-        return new Receipt(orderProduct.getProductName(), orderProduct.getQuantity(), orderProduct.getTotalPrice());
+        return new Receipt(orderProduct.getProductName(), orderProduct.getOrderQuantity(), orderProduct.getTotalPrice());
     }
 
     public static Receipt ofPromotion(OrderProduct orderProduct) {

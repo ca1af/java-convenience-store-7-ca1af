@@ -2,32 +2,30 @@ package store.presentation;
 
 import camp.nextstep.edu.missionutils.DateTimes;
 import java.time.LocalDateTime;
-import java.util.List;
-import store.domain.MemberShip;
-import store.domain.OrderProduct;
-import store.domain.Order;
-import store.infra.FilerLoaderProductRepository;
+import store.application.OrderService;
+import store.application.ReceiptFormatter;
+import store.application.RetryHandler;
+import store.domain.discount.MemberShip;
+import store.domain.order.Order;
+import store.domain.order.PromotionOrderProduct;
 import store.presentation.view.InputView;
 import store.presentation.view.OutputView;
 
 public class ConvenienceStoreController {
     private final InputView inputView;
     private final OutputView outputView;
-    private final FilerLoaderProductRepository filerLoaderProductRepository;
-    private final OrderParser orderParser;
+    private final OrderService orderService;
 
     public ConvenienceStoreController(InputView inputView, OutputView outputView,
-                                      FilerLoaderProductRepository filerLoaderProductRepository,
-                                      OrderParser orderParser) {
+                                      OrderService orderService) {
         this.inputView = inputView;
         this.outputView = outputView;
-        this.filerLoaderProductRepository = filerLoaderProductRepository;
-        this.orderParser = orderParser;
+        this.orderService = orderService;
     }
 
     public void printStart() {
         outputView.printStart();
-        outputView.printStocks(filerLoaderProductRepository.toString());
+        outputView.printStocks(orderService.getStocks());
     }
 
     public void run() {
@@ -60,16 +58,7 @@ public class ConvenienceStoreController {
     }
 
     private Order retrieveOrdersFromInput(LocalDateTime currentOrderDate) {
-        String userOrderInput = inputView.getOrders();
-        List<UserOrder> parsedUserOrders = orderParser.parseInput(userOrderInput);
-        return convertToDomainOrders(parsedUserOrders, currentOrderDate);
-    }
-
-    private Order convertToDomainOrders(List<UserOrder> parsedUserOrders, LocalDateTime orderDate) {
-        List<OrderProduct> domainOrderProducts = parsedUserOrders.stream()
-                .map(each -> each.toDomain(filerLoaderProductRepository.findAllByName(each.productName()), orderDate))
-                .toList();
-        return new Order(domainOrderProducts);
+        return orderService.retrieveOrdersFromInput(inputView.getOrders(), currentOrderDate);
     }
 
     private void processOrderDetails(Order order) {
@@ -77,7 +66,7 @@ public class ConvenienceStoreController {
         order.getFallBackToNormalOrders().forEach(this::handleFallbackItems);
     }
 
-    private void handleFallbackItems(OrderProduct orderProduct) {
+    private void handleFallbackItems(PromotionOrderProduct orderProduct) {
         if (!orderProduct.hasFallbackToNormal()) {
             return;
         }
@@ -89,7 +78,7 @@ public class ConvenienceStoreController {
         }
     }
 
-    private void handleUnclaimedFreeItems(OrderProduct orderProduct) {
+    private void handleUnclaimedFreeItems(PromotionOrderProduct orderProduct) {
         String freeItemDecision = inputView.getUnclaimedFreeItemWanted(orderProduct.getProductName());
         if (freeItemDecision.equalsIgnoreCase("Y")) {
             orderProduct.addQuantity();

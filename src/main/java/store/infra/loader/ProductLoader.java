@@ -1,8 +1,10 @@
 package store.infra.loader;
 
 import java.util.List;
-import store.domain.Product;
-import store.domain.Promotion;
+import store.domain.discount.Promotion;
+import store.domain.product.NormalProduct;
+import store.domain.product.Product;
+import store.domain.product.PromotionProduct;
 import store.infra.PromotionFactory;
 
 public class ProductLoader extends FileLoader<Product> {
@@ -40,6 +42,13 @@ public class ProductLoader extends FileLoader<Product> {
         int quantity = parseInteger(fields[2]);
         String promotionName = fields[3].trim();
         Promotion promotion = promotionFactory.getPromotion(promotionName);
-        return new Product(name, price, quantity, promotion);
+        return getProductionByPromotion(promotion, name, price, quantity);
+    }
+
+    private static Product getProductionByPromotion(Promotion promotion, String name, int price, int quantity) {
+        if (promotion != null){
+            return new PromotionProduct(name, price, quantity, promotion);
+        }
+        return new NormalProduct(name, price, quantity);
     }
 }

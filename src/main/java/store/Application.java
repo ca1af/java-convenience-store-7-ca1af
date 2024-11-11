@@ -1,8 +1,9 @@
 package store;
 
+import store.application.OrderService;
 import store.infra.FilerLoaderProductRepository;
 import store.presentation.ConvenienceStoreController;
-import store.presentation.OrderParser;
+import store.application.OrderParser;
 import store.presentation.view.InputView;
 import store.presentation.view.OutputView;
 
@@ -12,8 +13,9 @@ public class Application {
         OutputView outputView = new OutputView();
         FilerLoaderProductRepository filerLoaderProductRepository = new FilerLoaderProductRepository();
         OrderParser orderParser = new OrderParser();
+        OrderService orderService = new OrderService(filerLoaderProductRepository, orderParser);
         ConvenienceStoreController convenienceStoreController = new ConvenienceStoreController(inputView, outputView,
-                filerLoaderProductRepository, orderParser);
+                orderService);
         convenienceStoreController.run();
     }
 }

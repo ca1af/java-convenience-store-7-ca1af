@@ -1,4 +1,6 @@
-package store.domain;
+package store.domain.discount;
+
+import store.domain.order.Order;
 
 public class MemberShip {
     private static final double DISCOUNT_RATE = 0.3;

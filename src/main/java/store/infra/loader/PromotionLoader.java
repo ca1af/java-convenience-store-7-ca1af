@@ -2,7 +2,7 @@ package store.infra.loader;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import store.domain.Promotion;
+import store.domain.discount.Promotion;
 
 public class PromotionLoader extends FileLoader<Promotion> {
     private static final int EXPECTED_FIELD_COUNT = 5;
