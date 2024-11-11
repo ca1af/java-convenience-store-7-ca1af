@@ -42,7 +42,7 @@ public final class Product {
         return promotionNotNull() && promotion.applicable(orderDate);
     }
 
-    private boolean promotionNotNull() {
+    public boolean promotionNotNull() {
         return !Objects.isNull(promotion);
     }
 

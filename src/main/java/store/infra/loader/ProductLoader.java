@@ -1,5 +1,6 @@
 package store.infra.loader;
 
+import java.util.ArrayList;
 import java.util.List;
 import store.domain.Product;
 import store.domain.Promotion;
@@ -21,16 +22,29 @@ public class ProductLoader extends FileLoader<Product> {
         return parseLines(lines);
     }
 
+    public List<Product> loadFileProducts() {
+        return new ArrayList<>(load(FILE_PATH));
+    }
+
     public List<Product> loadProducts() {
-        return load(FILE_PATH);
+        List<Product> products = loadFileProducts();
+        List<Product> promotionProducts = products.stream().filter(Product::promotionNotNull).toList();
+
+        promotionProducts.stream()
+                .filter(each -> products.stream().noneMatch(all -> isPromotionExistsAndNormalDont(each, all)))
+                .map(each -> new Product(each.getName(), each.getPrice(), 0, null))
+                .forEach(products::add);
+
+        return products;
+    }
+
+    private static boolean isPromotionExistsAndNormalDont(Product each, Product all) {
+        return all.getName().equals(each.getName()) && !all.promotionNotNull();
     }
 
     @Override
     protected List<Product> parseLines(List<String> lines) {
-        return lines.stream()
-                .skip(1) // Skip header
-                .map(this::createProduct)
-                .toList();
+        return lines.stream().skip(1).map(this::createProduct).toList();
     }
 
     private Product createProduct(String line) {
