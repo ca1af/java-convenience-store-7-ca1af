@@ -5,6 +5,7 @@ import store.domain.Order;
 
 public class ReceiptFormatter {
     private static final String STORE_HEADER = "==============W 편의점================";
+    private static final String COLUMN_HEADER = "상품명\t\t수량\t금액";
     private static final String PROMOTION_HEADER = "=============증\t\t정===============";
     private static final String DIVIDER = "====================================";
 
@@ -17,41 +18,61 @@ public class ReceiptFormatter {
     }
 
     public String format() {
-        StringBuilder receipt = new StringBuilder();
-        appendOrderSection(receipt);
-        appendPromotionSection(receipt);
-        appendPaymentSection(receipt);
-        return receipt.toString();
+        return String.join(
+                System.lineSeparator(),
+                formatOrderSection(),
+                formatPromotionSection(),
+                formatPaymentSection()
+        );
     }
 
-    private void appendOrderSection(StringBuilder receipt) {
-        receipt.append(STORE_HEADER).append(System.lineSeparator());
-        formatReceipts(receipt, Receipt.ofList(order));
+    private String formatOrderSection() {
+        List<Receipt> receipts = Receipt.ofList(order);
+        return String.join(
+                System.lineSeparator(),
+                STORE_HEADER,
+                COLUMN_HEADER,
+                formatReceipts(receipts)
+        );
     }
 
-    private void appendPromotionSection(StringBuilder receipt) {
-        receipt.append(PROMOTION_HEADER).append(System.lineSeparator());
-        formatReceipts(receipt, Receipt.ofPromotedOrders(order));
-        receipt.append(DIVIDER).append(System.lineSeparator());
+    private String formatPromotionSection() {
+        List<Receipt> promotedReceipts = Receipt.ofPromotedOrders(order);
+        return String.join(
+                System.lineSeparator(),
+                PROMOTION_HEADER,
+                formatReceipts(promotedReceipts),
+                DIVIDER
+        );
     }
 
-    private void appendPaymentSection(StringBuilder receipt) {
+    private String formatPaymentSection() {
         PaymentDetail paymentDetail = PaymentDetail.of(order, memberShipDiscount);
-        appendPaymentLine(receipt, "총구매액", "", paymentDetail.totalAmount());
-        appendPaymentLine(receipt, "행사할인", "-", paymentDetail.promotionDiscount());
-        appendPaymentLine(receipt, "멤버십할인", "-", memberShipDiscount);
-        appendPaymentLine(receipt, "내실돈", "", paymentDetail.paymentAmount());
+        return String.join(
+                System.lineSeparator(),
+                formatPaymentLine("총구매액", formatMoney(paymentDetail.totalAmount())),
+                formatPaymentLine("행사할인", formatDiscount(paymentDetail.promotionDiscount())),
+                formatPaymentLine("멤버십할인", formatDiscount(memberShipDiscount)),
+                formatPaymentLine("내실돈", formatMoney(paymentDetail.paymentAmount()))
+        );
     }
 
-    private void formatReceipts(StringBuilder receipt, List<Receipt> receipts) {
-        receipts.forEach(item -> appendReceiptLine(receipt, item));
+    private String formatReceipts(List<Receipt> receipts) {
+        return receipts.stream()
+                .map(Receipt::format)
+                .reduce((a, b) -> a + System.lineSeparator() + b)
+                .orElse("");
     }
 
-    private void appendReceiptLine(StringBuilder receipt, Receipt item) {
-        receipt.append(item.format()).append(System.lineSeparator());
+    private String formatPaymentLine(String title, String amount) {
+        return String.format("%s\t\t%s", title, amount);
     }
 
-    private void appendPaymentLine(StringBuilder receipt, String title, String prefix, int amount) {
-        receipt.append(String.format("%s\t\t%s\t%,10d%s", title, prefix, amount, System.lineSeparator()));
+    private String formatDiscount(int discount) {
+        return String.format("-%,d", discount);
+    }
+
+    private String formatMoney(int amount){
+        return String.format("%,d", amount);
     }
 }

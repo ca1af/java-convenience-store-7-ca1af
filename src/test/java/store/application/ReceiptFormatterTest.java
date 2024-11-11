@@ -39,17 +39,18 @@ class ReceiptFormatterTest {
 
         String expectedReceipt = """
                 ==============W 편의점================
+                상품명		수량	금액
                 콜라      	 6	  6,000
                 에너지바    	 5	 10,000
                 =============증		정===============
                 콜라      	 2
                 ====================================
                 총구매액		    	 16,000
-                행사할인		-	  2,000
-                멤버십할인		-	  3,000
+                행사할인			   -2,000
+                멤버십할인			   -3,000
                 내실돈		    	 11,000
                 """;
-        Assertions.assertThat(receipt.replace(" ", "")).isEqualTo(expectedReceipt.replace(" ", ""));
+        Assertions.assertThat(receipt.replace("\\s", "")).isEqualTo(expectedReceipt.replace(" ", ""));
     }
 
     @Test
@@ -70,13 +71,14 @@ class ReceiptFormatterTest {
 
         String expectedReceipt = """
                 ==============W 편의점================
+                상품명		수량	금액
                 물      	 3	  1,500
                 스낵      	 4	  6,000
                 =============증		정===============
                 ====================================
                 총구매액		    	  7,500
-                행사할인		-	      0
-                멤버십할인		-	  2,000
+                행사할인			      -0
+                멤버십할인			  -2,000
                 내실돈		    	  5,500
                 """;
         Assertions.assertThat(receipt.replace(" ", "")).isEqualTo(expectedReceipt.replace(" ", ""));
@@ -99,13 +101,14 @@ class ReceiptFormatterTest {
 
         String expectedReceipt = """
                 ==============W 편의점================
+                상품명		수량	금액
                 주스      	 8	 16,000
                 =============증		정===============
                 주스      	 4
                 ====================================
                 총구매액		    	 16,000
-                행사할인		-	  8,000
-                멤버십할인		-	      0
+                행사할인			 -8,000
+                멤버십할인			      -0
                 내실돈		    	  8,000
                 """;
         Assertions.assertThat(receipt.replace(" ", "")).isEqualTo(expectedReceipt.replace(" ", ""));
