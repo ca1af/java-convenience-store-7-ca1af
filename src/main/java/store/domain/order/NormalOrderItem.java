@@ -2,8 +2,8 @@ package store.domain.order;
 
 import store.domain.product.NormalProduct;
 
-public class NormalOrderProduct extends AbstractOrderProduct {
-    public NormalOrderProduct(NormalProduct normalProduct, int orderQuantity) {
+public class NormalOrderItem extends AbstractOrderItem {
+    public NormalOrderItem(NormalProduct normalProduct, int orderQuantity) {
         super(normalProduct, null, orderQuantity);
     }
 

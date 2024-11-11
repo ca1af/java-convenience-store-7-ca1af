@@ -9,18 +9,18 @@ import org.junit.jupiter.api.Test;
 import store.domain.DomainErrorMessage;
 import store.domain.product.NormalProduct;
 
-class NormalOrderProductTest {
+class NormalOrderItemTest {
 
     private final NormalProduct normalProduct = new NormalProduct("StandardItem", 1000, 10);
 
-    private NormalOrderProduct createNormalOrderProduct(NormalProduct product, int orderQuantity) {
-        return new NormalOrderProduct(product, orderQuantity);
+    private NormalOrderItem createNormalOrderProduct(NormalProduct product, int orderQuantity) {
+        return new NormalOrderItem(product, orderQuantity);
     }
 
     @Test
     @DisplayName("일반 상품이 포함되지 않으면 예외가 발생한다.")
     void validateNormalProductNull() {
-        assertThatThrownBy(() ->  new NormalOrderProduct(null, 10))
+        assertThatThrownBy(() ->  new NormalOrderItem(null, 10))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage(DomainErrorMessage.NORMAL_PRODUCT_NEEDED.getMessage());
 
@@ -29,7 +29,7 @@ class NormalOrderProductTest {
     @Test
     @DisplayName("수량을 1 증가시킨다")
     void shouldIncreaseQuantityByOne() {
-        NormalOrderProduct orderProduct = createNormalOrderProduct(normalProduct, 5);
+        NormalOrderItem orderProduct = createNormalOrderProduct(normalProduct, 5);
         orderProduct.addQuantity();
 
         Assertions.assertThat(orderProduct.getOrderQuantity()).isEqualTo(6);
@@ -38,7 +38,7 @@ class NormalOrderProductTest {
     @Test
     @DisplayName("수량을 감소시킨다")
     void shouldSubtractQuantity() {
-        NormalOrderProduct orderProduct = createNormalOrderProduct(normalProduct, 5);
+        NormalOrderItem orderProduct = createNormalOrderProduct(normalProduct, 5);
         orderProduct.subtract(2);
 
         Assertions.assertThat(orderProduct.getOrderQuantity()).isEqualTo(3);
@@ -47,7 +47,7 @@ class NormalOrderProductTest {
     @Test
     @DisplayName("일반 상품의 프로모션 재고는 항상 0이다")
     void getPromotionStock() {
-        NormalOrderProduct orderProduct = createNormalOrderProduct(normalProduct, 5);
+        NormalOrderItem orderProduct = createNormalOrderProduct(normalProduct, 5);
         Assertions.assertThat(orderProduct.getPromotionStock()).isZero();
     }
 
@@ -57,7 +57,7 @@ class NormalOrderProductTest {
         @Test
         @DisplayName("재고가 충분하면 true를 반환한다")
         void shouldReturnTrueWhenStockIsEnough() {
-            NormalOrderProduct orderProduct = createNormalOrderProduct(normalProduct, 5);
+            NormalOrderItem orderProduct = createNormalOrderProduct(normalProduct, 5);
 
             boolean hasEnoughStock = orderProduct.hasEnoughStock();
 
@@ -67,7 +67,7 @@ class NormalOrderProductTest {
         @Test
         @DisplayName("재고가 부족하면 false를 반환한다")
         void shouldReturnFalseWhenStockIsNotEnough() {
-            NormalOrderProduct orderProduct = createNormalOrderProduct(normalProduct, 15);
+            NormalOrderItem orderProduct = createNormalOrderProduct(normalProduct, 15);
 
             boolean hasEnoughStock = orderProduct.hasEnoughStock();
 
@@ -81,7 +81,7 @@ class NormalOrderProductTest {
         @Test
         @DisplayName("재고를 정확히 감소시킨다")
         void shouldDecreaseStockCorrectly() {
-            NormalOrderProduct orderProduct = createNormalOrderProduct(normalProduct, 5);
+            NormalOrderItem orderProduct = createNormalOrderProduct(normalProduct, 5);
             orderProduct.decreaseStocks();
 
             Assertions.assertThat(normalProduct.getQuantity()).isEqualTo(5); // 10 - 5
@@ -90,7 +90,7 @@ class NormalOrderProductTest {
         @Test
         @DisplayName("주문 수량이 재고를 초과하면 예외를 발생시킨다")
         void shouldThrowExceptionWhenOrderQuantityExceedsStock() {
-            NormalOrderProduct orderProduct = createNormalOrderProduct(normalProduct, 15);
+            NormalOrderItem orderProduct = createNormalOrderProduct(normalProduct, 15);
 
             assertThatThrownBy(orderProduct::decreaseStocks)
                     .isInstanceOf(IllegalArgumentException.class)
@@ -104,7 +104,7 @@ class NormalOrderProductTest {
         @Test
         @DisplayName("총 가격을 정확히 계산한다")
         void shouldCalculateTotalPriceCorrectly() {
-            NormalOrderProduct orderProduct = createNormalOrderProduct(normalProduct, 5);
+            NormalOrderItem orderProduct = createNormalOrderProduct(normalProduct, 5);
 
             int totalPrice = orderProduct.getTotalPrice();
 
@@ -118,7 +118,7 @@ class NormalOrderProductTest {
         @Test
         @DisplayName("상품 이름을 반환한다")
         void shouldReturnProductName() {
-            NormalOrderProduct orderProduct = createNormalOrderProduct(normalProduct, 5);
+            NormalOrderItem orderProduct = createNormalOrderProduct(normalProduct, 5);
 
             String productName = orderProduct.getProductName();
 
@@ -132,7 +132,7 @@ class NormalOrderProductTest {
         @Test
         @DisplayName("프로모션이 없으므로 0을 반환한다")
         void shouldReturnZeroAsNoPromotion() {
-            NormalOrderProduct orderProduct = createNormalOrderProduct(normalProduct, 5);
+            NormalOrderItem orderProduct = createNormalOrderProduct(normalProduct, 5);
 
             int promotedCount = orderProduct.calculatePromotedCount();
 
@@ -146,7 +146,7 @@ class NormalOrderProductTest {
         @Test
         @DisplayName("프로모션이 없으므로 false를 반환한다")
         void shouldReturnFalseAsNoPromotion() {
-            NormalOrderProduct orderProduct = createNormalOrderProduct(normalProduct, 5);
+            NormalOrderItem orderProduct = createNormalOrderProduct(normalProduct, 5);
 
             boolean hasUnclaimedFreeItem = orderProduct.hasUnclaimedFreeItem();
 
@@ -160,7 +160,7 @@ class NormalOrderProductTest {
         @Test
         @DisplayName("프로모션이 없으므로 false를 반환한다")
         void shouldReturnFalseAsNoPromotion() {
-            NormalOrderProduct orderProduct = createNormalOrderProduct(normalProduct, 5);
+            NormalOrderItem orderProduct = createNormalOrderProduct(normalProduct, 5);
 
             boolean hasFallbackToNormal = orderProduct.hasFallbackToNormal();
 

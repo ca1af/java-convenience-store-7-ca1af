@@ -5,11 +5,11 @@ import store.domain.DomainErrorMessage;
 import store.domain.product.NormalProduct;
 import store.domain.product.PromotionProduct;
 
-public class PromotionOrderProduct extends AbstractOrderProduct {
+public class PromotionOrderItem extends AbstractOrderItem {
     private final LocalDateTime orderDate;
 
-    public PromotionOrderProduct(NormalProduct normalProduct, PromotionProduct promotionProduct, int orderQuantity,
-                                 LocalDateTime orderDate) {
+    public PromotionOrderItem(NormalProduct normalProduct, PromotionProduct promotionProduct, int orderQuantity,
+                              LocalDateTime orderDate) {
         super(normalProduct, promotionProduct, orderQuantity);
         this.orderDate = orderDate;
         validateDifferentProducts(normalProduct, promotionProduct);

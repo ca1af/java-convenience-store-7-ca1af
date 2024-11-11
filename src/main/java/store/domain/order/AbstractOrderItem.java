@@ -4,12 +4,12 @@ import store.domain.DomainErrorMessage;
 import store.domain.product.NormalProduct;
 import store.domain.product.PromotionProduct;
 
-public abstract class AbstractOrderProduct implements OrderProduct {
+public abstract class AbstractOrderItem implements OrderItem {
     protected final NormalProduct normalProduct;
     protected final PromotionProduct promotionProduct;
     protected int orderQuantity;
 
-    protected AbstractOrderProduct(NormalProduct normalProduct, PromotionProduct promotionProduct, int orderQuantity) {
+    protected AbstractOrderItem(NormalProduct normalProduct, PromotionProduct promotionProduct, int orderQuantity) {
         validate(normalProduct);
         this.normalProduct = normalProduct;
         this.promotionProduct = promotionProduct;

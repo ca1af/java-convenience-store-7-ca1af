@@ -2,15 +2,15 @@ package store.application;
 
 import java.util.List;
 import store.domain.order.Order;
-import store.domain.order.OrderProduct;
+import store.domain.order.OrderItem;
 
 public record Receipt(String name, int quantity, int totalPrice) {
-    public static Receipt of(OrderProduct orderProduct) {
-        return new Receipt(orderProduct.getProductName(), orderProduct.getOrderQuantity(), orderProduct.getTotalPrice());
+    public static Receipt of(OrderItem orderItem) {
+        return new Receipt(orderItem.getProductName(), orderItem.getOrderQuantity(), orderItem.getTotalPrice());
     }
 
-    public static Receipt ofPromotion(OrderProduct orderProduct) {
-        return new Receipt(orderProduct.getProductName(), orderProduct.calculatePromotedCount(), 0);
+    public static Receipt ofPromotion(OrderItem orderItem) {
+        return new Receipt(orderItem.getProductName(), orderItem.calculatePromotedCount(), 0);
     }
 
     public static List<Receipt> ofList(Order order) {

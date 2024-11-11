@@ -3,7 +3,7 @@ package store.application;
 import java.time.LocalDateTime;
 import java.util.List;
 import store.domain.order.Order;
-import store.domain.order.OrderProduct;
+import store.domain.order.OrderItem;
 import store.domain.product.Product;
 import store.infra.FilerLoaderProductRepository;
 
@@ -22,13 +22,13 @@ public class OrderService {
     }
 
     public Order convertToDomainOrders(List<UserOrder> parsedUserOrders, LocalDateTime orderDate) {
-        List<OrderProduct> domainOrderProducts = parsedUserOrders.stream()
+        List<OrderItem> domainOrderItems = parsedUserOrders.stream()
                 .map(each -> createOrderProduct(orderDate, each))
                 .toList();
-        return new Order(domainOrderProducts);
+        return new Order(domainOrderItems);
     }
 
-    public OrderProduct createOrderProduct(LocalDateTime orderDate, UserOrder each) {
+    public OrderItem createOrderProduct(LocalDateTime orderDate, UserOrder each) {
         List<Product> products = filerLoaderProductRepository.findAllByName(each.productName());
         return each.toDomain(products, orderDate);
     }

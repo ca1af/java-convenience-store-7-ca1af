@@ -8,9 +8,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import store.application.ReceiptFormatter;
 import store.domain.discount.Promotion;
-import store.domain.order.NormalOrderProduct;
+import store.domain.order.NormalOrderItem;
 import store.domain.order.Order;
-import store.domain.order.PromotionOrderProduct;
+import store.domain.order.PromotionOrderItem;
 import store.domain.product.NormalProduct;
 import store.domain.product.PromotionProduct;
 
@@ -48,8 +48,8 @@ class ReceiptFormatterTest {
         NormalProduct colaNormalProduct = new NormalProduct("콜라", 1000, 10);
         NormalProduct energyBar = new NormalProduct("에너지바", 2000, 5);
 
-        PromotionOrderProduct orderProduct1 = new PromotionOrderProduct(colaNormalProduct, colaPromoProduct, 6, orderDate); // 6개 구매 -> 2+1 프로모션 -> 증정 2개
-        NormalOrderProduct orderProduct2 = new NormalOrderProduct(energyBar, 5); // 5개 구매, 프로모션 없음
+        PromotionOrderItem orderProduct1 = new PromotionOrderItem(colaNormalProduct, colaPromoProduct, 6, orderDate); // 6개 구매 -> 2+1 프로모션 -> 증정 2개
+        NormalOrderItem orderProduct2 = new NormalOrderItem(energyBar, 5); // 5개 구매, 프로모션 없음
 
         Order order = new Order(List.of(orderProduct1, orderProduct2));
         int memberShipDiscount = 3000;
@@ -83,8 +83,8 @@ class ReceiptFormatterTest {
         NormalProduct water = new NormalProduct("물", 500, 10);
         NormalProduct snack = new NormalProduct("스낵", 1500, 5);
 
-        NormalOrderProduct orderProduct1 = new NormalOrderProduct(water, 3); // 3개 구매
-        NormalOrderProduct orderProduct2 = new NormalOrderProduct(snack, 4); // 4개 구매
+        NormalOrderItem orderProduct1 = new NormalOrderItem(water, 3); // 3개 구매
+        NormalOrderItem orderProduct2 = new NormalOrderItem(snack, 4); // 4개 구매
 
         Order order = new Order(List.of(orderProduct1, orderProduct2));
         int memberShipDiscount = 2000;
@@ -119,7 +119,7 @@ class ReceiptFormatterTest {
         PromotionProduct juicePromoProduct = new PromotionProduct("주스", 2000, 10, promotion);
         NormalProduct juiceNormalProduct = new NormalProduct("주스", 2000, 10);
 
-        PromotionOrderProduct orderProduct = new PromotionOrderProduct(juiceNormalProduct, juicePromoProduct, 8, orderDate); // 8개 구매 -> 1+1 프로모션 -> 증정 4개
+        PromotionOrderItem orderProduct = new PromotionOrderItem(juiceNormalProduct, juicePromoProduct, 8, orderDate); // 8개 구매 -> 1+1 프로모션 -> 증정 4개
 
         Order order = new Order(List.of(orderProduct));
         int memberShipDiscount = 0;

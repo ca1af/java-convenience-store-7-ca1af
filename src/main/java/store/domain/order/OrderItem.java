@@ -1,6 +1,6 @@
 package store.domain.order;
 
-public interface OrderProduct {
+public interface OrderItem {
     void addQuantity();
     void subtract(int amount);
     boolean hasEnoughStock();

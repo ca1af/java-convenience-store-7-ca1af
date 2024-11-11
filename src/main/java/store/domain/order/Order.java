@@ -5,42 +5,42 @@ import java.util.Optional;
 import store.domain.DomainErrorMessage;
 
 public class Order {
-    private final List<OrderProduct> requestedOrderProducts;
+    private final List<OrderItem> requestedOrderItems;
 
-    public Order(List<OrderProduct> requestedOrderProducts) {
-        validate(requestedOrderProducts);
-        this.requestedOrderProducts = requestedOrderProducts;
+    public Order(List<OrderItem> requestedOrderItems) {
+        validate(requestedOrderItems);
+        this.requestedOrderItems = requestedOrderItems;
     }
 
-    private void validate(List<OrderProduct> orderProducts) {
-        if (orderProducts.isEmpty()) {
+    private void validate(List<OrderItem> orderItems) {
+        if (orderItems.isEmpty()) {
             throw new IllegalArgumentException(DomainErrorMessage.INVALID_INPUT.getMessage());
         }
 
-        Optional<OrderProduct> unavailableOrder = orderProducts.stream().filter(each -> !each.hasEnoughStock())
+        Optional<OrderItem> unavailableOrder = orderItems.stream().filter(each -> !each.hasEnoughStock())
                 .findAny();
         if (unavailableOrder.isPresent()) {
             throw new IllegalArgumentException(DomainErrorMessage.QUANTITY_EXCEEDED.getMessage());
         }
     }
 
-    public List<OrderProduct> getRequestedOrders() {
-        return List.copyOf(requestedOrderProducts);
+    public List<OrderItem> getRequestedOrders() {
+        return List.copyOf(requestedOrderItems);
     }
 
-    public List<PromotionOrderProduct> getUnclaimedFreeItemOrder() {
-        return requestedOrderProducts.stream()
-                .filter(PromotionOrderProduct.class::isInstance)
-                .map(PromotionOrderProduct.class::cast)
-                .filter(OrderProduct::hasUnclaimedFreeItem).toList();
+    public List<PromotionOrderItem> getUnclaimedFreeItemOrder() {
+        return requestedOrderItems.stream()
+                .filter(PromotionOrderItem.class::isInstance)
+                .map(PromotionOrderItem.class::cast)
+                .filter(OrderItem::hasUnclaimedFreeItem).toList();
     }
 
-    public List<OrderProduct> getPromotedOrders() {
-        return requestedOrderProducts.stream().filter(PromotionOrderProduct.class::isInstance).toList();
+    public List<OrderItem> getPromotedOrders() {
+        return requestedOrderItems.stream().filter(PromotionOrderItem.class::isInstance).toList();
     }
 
     public int getTotalPrice() {
-        return requestedOrderProducts.stream().mapToInt(OrderProduct::getTotalPrice).sum();
+        return requestedOrderItems.stream().mapToInt(OrderItem::getTotalPrice).sum();
     }
 
     public int getPromotionDiscount() {
@@ -49,19 +49,19 @@ public class Order {
     }
 
     public int getTotalQuantity() {
-        return requestedOrderProducts.stream().mapToInt(OrderProduct::getOrderQuantity).sum();
+        return requestedOrderItems.stream().mapToInt(OrderItem::getOrderQuantity).sum();
     }
 
     public int getNormalProductPrice() {
-        return requestedOrderProducts.stream().mapToInt(OrderProduct::getNormalProductPrice).sum();
+        return requestedOrderItems.stream().mapToInt(OrderItem::getNormalProductPrice).sum();
     }
 
-    public List<PromotionOrderProduct> getFallBackToNormalOrders() {
-        return requestedOrderProducts.stream().filter(PromotionOrderProduct.class::isInstance)
-                .map(PromotionOrderProduct.class::cast).filter(each -> each.countFallbackToNormal() > 0).toList();
+    public List<PromotionOrderItem> getFallBackToNormalOrders() {
+        return requestedOrderItems.stream().filter(PromotionOrderItem.class::isInstance)
+                .map(PromotionOrderItem.class::cast).filter(each -> each.countFallbackToNormal() > 0).toList();
     }
 
     public void decreaseAmount() {
-        requestedOrderProducts.forEach(OrderProduct::decreaseStocks);
+        requestedOrderItems.forEach(OrderItem::decreaseStocks);
     }
 }

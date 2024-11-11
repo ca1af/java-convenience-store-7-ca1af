@@ -7,7 +7,7 @@ import store.application.ReceiptFormatter;
 import store.application.RetryHandler;
 import store.domain.discount.MemberShip;
 import store.domain.order.Order;
-import store.domain.order.PromotionOrderProduct;
+import store.domain.order.PromotionOrderItem;
 import store.presentation.view.InputView;
 import store.presentation.view.OutputView;
 
@@ -66,7 +66,7 @@ public class ConvenienceStoreController {
         order.getFallBackToNormalOrders().forEach(this::handleFallbackItems);
     }
 
-    private void handleFallbackItems(PromotionOrderProduct orderProduct) {
+    private void handleFallbackItems(PromotionOrderItem orderProduct) {
         if (!orderProduct.hasFallbackToNormal()) {
             return;
         }
@@ -78,7 +78,7 @@ public class ConvenienceStoreController {
         }
     }
 
-    private void handleUnclaimedFreeItems(PromotionOrderProduct orderProduct) {
+    private void handleUnclaimedFreeItems(PromotionOrderItem orderProduct) {
         String freeItemDecision = inputView.getUnclaimedFreeItemWanted(orderProduct.getProductName());
         if (freeItemDecision.equalsIgnoreCase("Y")) {
             orderProduct.addQuantity();

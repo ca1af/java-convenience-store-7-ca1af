@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import store.application.OrderParser;
 import store.application.UserOrder;
 
-class OrderProductParserTest {
+class OrderItemParserTest {
     private OrderParser orderParser;
 
     @BeforeEach
