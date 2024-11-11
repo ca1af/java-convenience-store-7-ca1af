@@ -6,7 +6,7 @@ import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import store.domain.Promotion;
+import store.domain.discount.Promotion;
 
 class PromotionLoaderTest {
     private final PromotionLoader promotionLoader = new PromotionLoader();
@@ -38,6 +38,6 @@ class PromotionLoaderTest {
         return promotions.stream()
                 .filter(p -> p.name().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new AssertionError("Promotion not found: " + name));
+                .orElseThrow(AssertionError::new);
     }
 }

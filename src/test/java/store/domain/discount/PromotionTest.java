@@ -1,10 +1,14 @@
-package store.domain;
+package store.domain.discount;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import store.domain.DomainErrorMessage;
 
 class PromotionTest {
 
@@ -54,5 +58,22 @@ class PromotionTest {
         boolean result = promotion.applicable(now.atStartOfDay());
 
         Assertions.assertThat(result).isEqualTo(expected);
+    }
+
+    @ParameterizedTest
+    @DisplayName("현재 날짜가 프로모션 기간에 해당하는지 확인한다")
+    @CsvSource({
+            "2024-01-01, 2024-12-31",   // 기간 내
+            "2024-01-01, 2024-12-31",  // 종료 후
+            "2024-01-01, 2024-12-31",  // 시작 전
+            "2024-01-01, 2024-12-31",   // 시작일
+            "2024-01-01, 2024-12-31"    // 종료일
+    })
+    void invalidDate(String startDate, String endDate) {
+        LocalDateTime start = LocalDate.parse(startDate).atStartOfDay();
+        LocalDateTime end = LocalDate.parse(endDate).atStartOfDay();
+        assertThatThrownBy(() -> new Promotion("foo", 2, 1,end, start))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage(DomainErrorMessage.INVALID_PROMOTION_DATE.getMessage());
     }
 }
