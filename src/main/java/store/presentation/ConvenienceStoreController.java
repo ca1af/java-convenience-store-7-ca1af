@@ -33,7 +33,7 @@ public class ConvenienceStoreController {
         do {
             handleOrder(membership, DateTimes.now());
             String continueOrder = inputView.getWantMore();
-            if (continueOrder.equalsIgnoreCase("N")) {
+            if ("N".equals(continueOrder)) {
                 break;
             }
         } while (true);
